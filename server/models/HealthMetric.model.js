@@ -35,7 +35,7 @@ const healthMetricSchema = new mongoose.Schema(
     },
     source: {
       type: String,
-      enum: ["manual", "apple-health", "samsung-health", "fitbit", "simulator"],
+      enum: ["manual", "apple-health", "samsung-health", "fitbit", "simulator", "google_fit"],
       default: "manual",
     },
     timestamp: {

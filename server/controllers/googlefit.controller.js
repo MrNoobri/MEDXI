@@ -2,11 +2,22 @@ const { google } = require("googleapis");
 const User = require("../models/User.model");
 const HealthMetric = require("../models/HealthMetric.model");
 
+// Check if Google Fit credentials are configured
+if (
+  !process.env.GOOGLE_FIT_CLIENT_ID ||
+  !process.env.GOOGLE_FIT_CLIENT_SECRET
+) {
+  console.warn(
+    "⚠️ Google Fit API credentials not configured. Please add GOOGLE_FIT_CLIENT_ID and GOOGLE_FIT_CLIENT_SECRET to .env file",
+  );
+}
+
 // Google Fit OAuth2 Client Setup
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_FIT_CLIENT_ID,
   process.env.GOOGLE_FIT_CLIENT_SECRET,
-  process.env.GOOGLE_FIT_REDIRECT_URI || "http://localhost:5000/api/googlefit/callback"
+  process.env.GOOGLE_FIT_REDIRECT_URI ||
+    "http://localhost:5000/api/googlefit/callback",
 );
 
 // Scopes for Google Fit
@@ -26,6 +37,18 @@ const SCOPES = [
  */
 const getAuthUrl = async (req, res) => {
   try {
+    // Check if credentials are configured
+    if (
+      !process.env.GOOGLE_FIT_CLIENT_ID ||
+      !process.env.GOOGLE_FIT_CLIENT_SECRET
+    ) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "Google Fit integration is not configured. Please contact administrator.",
+      });
+    }
+
     const userId = req.user._id.toString();
 
     const authUrl = oauth2Client.generateAuthUrl({
@@ -58,7 +81,9 @@ const handleCallback = async (req, res) => {
     const userId = state;
 
     if (!code || !userId) {
-      return res.redirect(`${process.env.CLIENT_URL}/dashboard?error=auth_failed`);
+      return res.redirect(
+        `${process.env.CLIENT_URL}/dashboard?error=auth_failed`,
+      );
     }
 
     // Exchange authorization code for tokens
@@ -68,7 +93,9 @@ const handleCallback = async (req, res) => {
     // Save tokens to user document
     const user = await User.findById(userId);
     if (!user) {
-      return res.redirect(`${process.env.CLIENT_URL}/dashboard?error=user_not_found`);
+      return res.redirect(
+        `${process.env.CLIENT_URL}/dashboard?error=user_not_found`,
+      );
     }
 
     // Store tokens securely
@@ -177,7 +204,7 @@ async function syncGoogleFitData(userId) {
     const userOAuth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_FIT_CLIENT_ID,
       process.env.GOOGLE_FIT_CLIENT_SECRET,
-      process.env.GOOGLE_FIT_REDIRECT_URI
+      process.env.GOOGLE_FIT_REDIRECT_URI,
     );
 
     userOAuth2Client.setCredentials({
@@ -194,11 +221,16 @@ async function syncGoogleFitData(userId) {
 
     // Data source IDs for different metrics
     const dataSources = {
-      steps: "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
-      heartRate: "derived:com.google.heart_rate.bpm:com.google.android.gms:merge_heart_rate_bpm",
-      bloodPressure: "derived:com.google.blood_pressure:com.google.android.gms:merged",
-      bloodGlucose: "derived:com.google.blood_glucose:com.google.android.gms:merged",
-      oxygen: "derived:com.google.oxygen_saturation:com.google.android.gms:merged",
+      steps:
+        "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
+      heartRate:
+        "derived:com.google.heart_rate.bpm:com.google.android.gms:merge_heart_rate_bpm",
+      bloodPressure:
+        "derived:com.google.blood_pressure:com.google.android.gms:merged",
+      bloodGlucose:
+        "derived:com.google.blood_glucose:com.google.android.gms:merged",
+      oxygen:
+        "derived:com.google.oxygen_saturation:com.google.android.gms:merged",
       sleep: "derived:com.google.sleep.segment:com.google.android.gms:merged",
     };
 
@@ -226,15 +258,18 @@ async function syncGoogleFitData(userId) {
               if (steps > 0) {
                 await HealthMetric.findOneAndUpdate(
                   {
-                    user: userId,
-                    type: "steps",
-                    recordedAt: new Date(parseInt(point.startTimeNanos) / 1000000),
+                    userId: userId,
+                    metricType: "steps",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
                   },
                   {
                     value: steps,
+                    unit: "steps",
                     source: "google_fit",
                   },
-                  { upsert: true, new: true }
+                  { upsert: true, new: true },
                 );
               }
             }
@@ -269,16 +304,18 @@ async function syncGoogleFitData(userId) {
               if (heartRate > 0) {
                 await HealthMetric.findOneAndUpdate(
                   {
-                    user: userId,
-                    type: "heart_rate",
-                    recordedAt: new Date(parseInt(point.startTimeNanos) / 1000000),
+                    userId: userId,
+                    metricType: "heartRate",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
                   },
                   {
                     value: Math.round(heartRate),
                     unit: "bpm",
                     source: "google_fit",
                   },
-                  { upsert: true, new: true }
+                  { upsert: true, new: true },
                 );
               }
             }
@@ -312,7 +349,8 @@ async function syncGoogleFitData(userId) {
             for (const point of bucket.dataset[0].point) {
               const startNanos = parseInt(point.startTimeNanos);
               const endNanos = parseInt(point.endTimeNanos);
-              const durationMinutes = (endNanos - startNanos) / 1000000 / 1000 / 60;
+              const durationMinutes =
+                (endNanos - startNanos) / 1000000 / 1000 / 60;
               totalSleepMinutes += durationMinutes;
             }
 
@@ -320,16 +358,16 @@ async function syncGoogleFitData(userId) {
               const sleepHours = (totalSleepMinutes / 60).toFixed(1);
               await HealthMetric.findOneAndUpdate(
                 {
-                  user: userId,
-                  type: "sleep",
-                  recordedAt: new Date(parseInt(bucket.startTimeMillis)),
+                  userId: userId,
+                  metricType: "sleep",
+                  timestamp: new Date(parseInt(bucket.startTimeMillis)),
                 },
                 {
                   value: parseFloat(sleepHours),
                   unit: "hours",
                   source: "google_fit",
                 },
-                { upsert: true, new: true }
+                { upsert: true, new: true },
               );
             }
           }
