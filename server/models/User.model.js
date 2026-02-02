@@ -124,6 +124,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    // Google Fit Integration
+    googleFitConnected: {
+      type: Boolean,
+      default: false,
+    },
+    googleFitTokens: {
+      accessToken: String,
+      refreshToken: String,
+      expiryDate: Number,
+    },
   },
   {
     timestamps: true,

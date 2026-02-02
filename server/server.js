@@ -45,6 +45,7 @@ app.use("/api/appointments", require("./routes/appointment.routes"));
 app.use("/api/messages", require("./routes/message.routes"));
 app.use("/api/alerts", require("./routes/alert.routes"));
 app.use("/api/chatbot", require("./routes/chatbot.routes"));
+app.use("/api/googlefit", require("./routes/googlefit.routes"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

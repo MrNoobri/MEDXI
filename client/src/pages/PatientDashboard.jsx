@@ -10,6 +10,7 @@ import ChatbotButton from "../components/chatbot/ChatbotButton";
 import InsightsWidget from "../components/dashboard/InsightsWidget";
 import RecipesWidget from "../components/dashboard/RecipesWidget";
 import WearableDevices from "../components/wearables/WearableDevices";
+import GoogleFitConnect from "../components/GoogleFitConnect";
 import { healthMetricsAPI, alertsAPI } from "../api";
 
 const PatientDashboard = () => {
@@ -365,7 +366,8 @@ const PatientDashboard = () => {
 
         {/* Wearables Tab */}
         {activeTab === "wearables" && (
-          <div>
+          <div className="space-y-6">
+            <GoogleFitConnect />
             <WearableDevices
               isSimulating={isSimulating}
               simulatorData={simulatorData}
