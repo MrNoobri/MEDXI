@@ -1,6 +1,7 @@
 const HealthMetric = require("../models/HealthMetric.model");
 const Alert = require("../models/Alert.model");
 const { createAuditLog } = require("../middleware/audit.middleware");
+const { awardPoints } = require("./gamification.controller");
 
 /**
  * Health metric thresholds for alert generation
@@ -103,6 +104,9 @@ const createMetric = async (req, res) => {
 
     // Check if alert should be triggered
     await checkAlertThreshold(metric);
+
+    // Award gamification points
+    await awardPoints(userId, metricType);
 
     // Audit log
     await createAuditLog(req.user._id, req.user.role, "edit-patient-data", {

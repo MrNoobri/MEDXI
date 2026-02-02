@@ -219,6 +219,18 @@ async function syncGoogleFitData(userId) {
     const endTime = Date.now();
     const startTime = endTime - 7 * 24 * 60 * 60 * 1000;
 
+    const metricsProcessed = {
+      steps: 0,
+      heartRate: 0,
+      sleep: 0,
+      calories: 0,
+      distance: 0,
+      weight: 0,
+      bloodPressure: 0,
+      bloodGlucose: 0,
+      oxygenSaturation: 0,
+    };
+
     // Data source IDs for different metrics
     const dataSources = {
       steps:
@@ -234,7 +246,7 @@ async function syncGoogleFitData(userId) {
       sleep: "derived:com.google.sleep.segment:com.google.android.gms:merged",
     };
 
-    // Fetch Steps
+    // Fetch Steps - Per minute for detailed tracking
     try {
       const stepsResponse = await fitness.users.dataset.aggregate({
         userId: "me",
@@ -244,7 +256,7 @@ async function syncGoogleFitData(userId) {
               dataTypeName: "com.google.step_count.delta",
             },
           ],
-          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
+          bucketByTime: { durationMillis: 3600000 }, // Hourly buckets for more granular data
           startTimeMillis: startTime,
           endTimeMillis: endTime,
         },
@@ -271,6 +283,7 @@ async function syncGoogleFitData(userId) {
                   },
                   { upsert: true, new: true },
                 );
+                metricsProcessed.steps++;
               }
             }
           }
@@ -317,6 +330,7 @@ async function syncGoogleFitData(userId) {
                   },
                   { upsert: true, new: true },
                 );
+                metricsProcessed.heartRate++;
               }
             }
           }
@@ -324,6 +338,295 @@ async function syncGoogleFitData(userId) {
       }
     } catch (error) {
       console.log("Heart rate data not available or error:", error.message);
+    }
+
+    // Fetch Calories Burned
+    try {
+      const caloriesResponse = await fitness.users.dataset.aggregate({
+        userId: "me",
+        requestBody: {
+          aggregateBy: [
+            {
+              dataTypeName: "com.google.calories.expended",
+            },
+          ],
+          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
+          startTimeMillis: startTime,
+          endTimeMillis: endTime,
+        },
+      });
+
+      if (caloriesResponse.data.bucket) {
+        for (const bucket of caloriesResponse.data.bucket) {
+          if (bucket.dataset && bucket.dataset[0]?.point) {
+            for (const point of bucket.dataset[0].point) {
+              const calories = point.value?.[0]?.fpVal;
+              if (calories > 0) {
+                await HealthMetric.findOneAndUpdate(
+                  {
+                    userId: userId,
+                    metricType: "calories",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
+                  },
+                  {
+                    value: Math.round(calories),
+                    unit: "kcal",
+                    source: "google_fit",
+                  },
+                  { upsert: true, new: true },
+                );
+                metricsProcessed.calories++;
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Calories data not available or error:", error.message);
+    }
+
+    // Fetch Distance
+    try {
+      const distanceResponse = await fitness.users.dataset.aggregate({
+        userId: "me",
+        requestBody: {
+          aggregateBy: [
+            {
+              dataTypeName: "com.google.distance.delta",
+            },
+          ],
+          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
+          startTimeMillis: startTime,
+          endTimeMillis: endTime,
+        },
+      });
+
+      if (distanceResponse.data.bucket) {
+        for (const bucket of distanceResponse.data.bucket) {
+          if (bucket.dataset && bucket.dataset[0]?.point) {
+            for (const point of bucket.dataset[0].point) {
+              const distance = point.value?.[0]?.fpVal;
+              if (distance > 0) {
+                await HealthMetric.findOneAndUpdate(
+                  {
+                    userId: userId,
+                    metricType: "distance",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
+                  },
+                  {
+                    value: (distance / 1000).toFixed(2), // Convert meters to km
+                    unit: "km",
+                    source: "google_fit",
+                  },
+                  { upsert: true, new: true },
+                );
+                metricsProcessed.distance++;
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Distance data not available or error:", error.message);
+    }
+
+    // Fetch Weight
+    try {
+      const weightResponse = await fitness.users.dataset.aggregate({
+        userId: "me",
+        requestBody: {
+          aggregateBy: [
+            {
+              dataTypeName: "com.google.weight",
+            },
+          ],
+          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
+          startTimeMillis: startTime,
+          endTimeMillis: endTime,
+        },
+      });
+
+      if (weightResponse.data.bucket) {
+        for (const bucket of weightResponse.data.bucket) {
+          if (bucket.dataset && bucket.dataset[0]?.point) {
+            for (const point of bucket.dataset[0].point) {
+              const weight = point.value?.[0]?.fpVal;
+              if (weight > 0) {
+                await HealthMetric.findOneAndUpdate(
+                  {
+                    userId: userId,
+                    metricType: "weight",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
+                  },
+                  {
+                    value: weight.toFixed(1),
+                    unit: "kg",
+                    source: "google_fit",
+                  },
+                  { upsert: true, new: true },
+                );
+                metricsProcessed.weight++;
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Weight data not available or error:", error.message);
+    }
+
+    // Fetch Blood Pressure
+    try {
+      const bpResponse = await fitness.users.dataset.aggregate({
+        userId: "me",
+        requestBody: {
+          aggregateBy: [
+            {
+              dataTypeName: "com.google.blood_pressure",
+            },
+          ],
+          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
+          startTimeMillis: startTime,
+          endTimeMillis: endTime,
+        },
+      });
+
+      if (bpResponse.data.bucket) {
+        for (const bucket of bpResponse.data.bucket) {
+          if (bucket.dataset && bucket.dataset[0]?.point) {
+            for (const point of bucket.dataset[0].point) {
+              const systolic = point.value?.[0]?.fpVal;
+              const diastolic = point.value?.[1]?.fpVal;
+              if (systolic > 0 && diastolic > 0) {
+                await HealthMetric.findOneAndUpdate(
+                  {
+                    userId: userId,
+                    metricType: "bloodPressure",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
+                  },
+                  {
+                    value: {
+                      systolic: Math.round(systolic),
+                      diastolic: Math.round(diastolic),
+                    },
+                    unit: "mmHg",
+                    source: "google_fit",
+                  },
+                  { upsert: true, new: true },
+                );
+                metricsProcessed.bloodPressure++;
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Blood pressure data not available or error:", error.message);
+    }
+
+    // Fetch Blood Glucose
+    try {
+      const glucoseResponse = await fitness.users.dataset.aggregate({
+        userId: "me",
+        requestBody: {
+          aggregateBy: [
+            {
+              dataTypeName: "com.google.blood_glucose",
+            },
+          ],
+          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
+          startTimeMillis: startTime,
+          endTimeMillis: endTime,
+        },
+      });
+
+      if (glucoseResponse.data.bucket) {
+        for (const bucket of glucoseResponse.data.bucket) {
+          if (bucket.dataset && bucket.dataset[0]?.point) {
+            for (const point of bucket.dataset[0].point) {
+              const glucose = point.value?.[0]?.fpVal;
+              if (glucose > 0) {
+                await HealthMetric.findOneAndUpdate(
+                  {
+                    userId: userId,
+                    metricType: "bloodGlucose",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
+                  },
+                  {
+                    value: glucose.toFixed(1),
+                    unit: "mg/dL",
+                    source: "google_fit",
+                  },
+                  { upsert: true, new: true },
+                );
+                metricsProcessed.bloodGlucose++;
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Blood glucose data not available or error:", error.message);
+    }
+
+    // Fetch Oxygen Saturation
+    try {
+      const oxygenResponse = await fitness.users.dataset.aggregate({
+        userId: "me",
+        requestBody: {
+          aggregateBy: [
+            {
+              dataTypeName: "com.google.oxygen_saturation",
+            },
+          ],
+          bucketByTime: { durationMillis: 3600000 }, // Hourly buckets
+          startTimeMillis: startTime,
+          endTimeMillis: endTime,
+        },
+      });
+
+      if (oxygenResponse.data.bucket) {
+        for (const bucket of oxygenResponse.data.bucket) {
+          if (bucket.dataset && bucket.dataset[0]?.point) {
+            for (const point of bucket.dataset[0].point) {
+              const oxygen = point.value?.[0]?.fpVal;
+              if (oxygen > 0) {
+                await HealthMetric.findOneAndUpdate(
+                  {
+                    userId: userId,
+                    metricType: "oxygenSaturation",
+                    timestamp: new Date(
+                      parseInt(point.startTimeNanos) / 1000000,
+                    ),
+                  },
+                  {
+                    value: oxygen.toFixed(1),
+                    unit: "%",
+                    source: "google_fit",
+                  },
+                  { upsert: true, new: true },
+                );
+                metricsProcessed.oxygenSaturation++;
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log(
+        "Oxygen saturation data not available or error:",
+        error.message,
+      );
     }
 
     // Fetch Sleep (total duration per day)
@@ -369,6 +672,7 @@ async function syncGoogleFitData(userId) {
                 },
                 { upsert: true, new: true },
               );
+              metricsProcessed.sleep++;
             }
           }
         }
@@ -378,6 +682,7 @@ async function syncGoogleFitData(userId) {
     }
 
     console.log(`✓ Google Fit data synced for user ${userId}`);
+    console.log(`  Metrics processed:`, metricsProcessed);
   } catch (error) {
     console.error("Error in syncGoogleFitData:", error);
     throw error;

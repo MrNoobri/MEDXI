@@ -22,6 +22,7 @@ const healthMetricSchema = new mongoose.Schema(
         "exercise",
         "temperature",
         "oxygenSaturation",
+        "distance",
       ],
       required: true,
     },
