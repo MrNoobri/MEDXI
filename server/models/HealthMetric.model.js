@@ -22,6 +22,7 @@ const healthMetricSchema = new mongoose.Schema(
         "exercise",
         "temperature",
         "oxygenSaturation",
+        "distance",
       ],
       required: true,
     },
@@ -35,7 +36,14 @@ const healthMetricSchema = new mongoose.Schema(
     },
     source: {
       type: String,
-      enum: ["manual", "apple-health", "samsung-health", "fitbit", "simulator", "google_fit"],
+      enum: [
+        "manual",
+        "apple-health",
+        "samsung-health",
+        "fitbit",
+        "simulator",
+        "google_fit",
+      ],
       default: "manual",
     },
     timestamp: {
