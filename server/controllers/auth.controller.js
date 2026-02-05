@@ -10,6 +10,7 @@ const {
   hashToken,
 } = require("../utils/token.util");
 const { createAuditLog } = require("../middleware/audit.middleware");
+const emailService = require("../services/emailService");
 
 /**
  * Register new user
@@ -294,12 +295,25 @@ const sendVerificationEmail = async (req, res) => {
     user.emailVerificationExpires = expires;
     await user.save();
 
-    // TODO: Send email with token (will be implemented in email service)
-    // For now, return the token in development mode only
+    // Send verification email
     const response = {
       success: true,
       message: "Verification email sent",
     };
+
+    if (emailService.isAvailable()) {
+      try {
+        const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+        await emailService.sendVerificationEmail({
+          to: user.email,
+          name: user.profile.firstName || "User",
+          verificationUrl,
+        });
+      } catch (emailError) {
+        console.error("Failed to send verification email:", emailError);
+        // Don't fail the request if email fails
+      }
+    }
 
     if (process.env.NODE_ENV === "development") {
       response.verificationToken = token; // Only for testing
@@ -405,11 +419,24 @@ const resendVerification = async (req, res) => {
     user.emailVerificationExpires = expires;
     await user.save();
 
-    // TODO: Send email with token
+    // Send verification email
     const response = {
       success: true,
       message: "Verification email resent",
     };
+
+    if (emailService.isAvailable()) {
+      try {
+        const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+        await emailService.sendVerificationEmail({
+          to: user.email,
+          name: user.profile.firstName || "User",
+          verificationUrl,
+        });
+      } catch (emailError) {
+        console.error("Failed to resend verification email:", emailError);
+      }
+    }
 
     if (process.env.NODE_ENV === "development") {
       response.verificationToken = token; // Only for testing
@@ -463,11 +490,24 @@ const requestPasswordReset = async (req, res) => {
     user.resetPasswordExpires = expires;
     await user.save();
 
-    // TODO: Send email with token
+    // Send password reset email
     const response = {
       success: true,
       message: "If an account with that email exists, a password reset link has been sent",
     };
+
+    if (emailService.isAvailable()) {
+      try {
+        const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+        await emailService.sendPasswordResetEmail({
+          to: user.email,
+          name: user.profile.firstName || "User",
+          resetUrl,
+        });
+      } catch (emailError) {
+        console.error("Failed to send password reset email:", emailError);
+      }
+    }
 
     if (process.env.NODE_ENV === "development") {
       response.resetToken = token; // Only for testing
@@ -591,7 +631,20 @@ const updateProfile = async (req, res) => {
       user.emailVerificationTokenHash = hash;
       user.emailVerificationExpires = expires;
 
-      // TODO: Send verification email to new address
+      // Send verification email to new address
+      if (emailService.isAvailable()) {
+        try {
+          const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+          await emailService.sendVerificationEmail({
+            to: user.email,
+            name: user.profile.firstName || "User",
+            verificationUrl,
+          });
+        } catch (emailError) {
+          console.error("Failed to send verification email to new address:", emailError);
+        }
+      }
+
       if (process.env.NODE_ENV === "development") {
         console.log("Email changed. Verification token:", token);
       }
