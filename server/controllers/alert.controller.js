@@ -200,7 +200,8 @@ const sendAlertEmail = async (alert, user) => {
 
   try {
     const critical = alert.severity === "critical";
-    const severityText = alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1);
+    const severityText =
+      alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1);
 
     // Generate recommendations based on alert type
     const recommendations = [];

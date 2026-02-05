@@ -81,6 +81,57 @@ This creates three demo accounts with 30 days of health data:
 - **Provider**: `provider@demo.com` / `demo1234`
 - **Admin**: `admin@demo.com` / `demo1234`
 
+### 4. Email Configuration (Choose Your Mode)
+
+MEDXI supports two email modes:
+
+#### **Option A: Maildev (Local Testing - Default)**
+
+Perfect for development - emails are captured locally, no real emails sent.
+
+```bash
+# Start Maildev
+docker compose -f docker-compose.dev.yml up maildev
+
+# View all sent emails at: http://localhost:1080
+```
+
+Your `.env` should have:
+```env
+EMAIL_MODE=maildev
+```
+
+#### **Option B: Gmail SMTP (Real Emails)**
+
+Send actual emails to real addresses for demos or production.
+
+**Setup Steps:**
+
+1. **Enable 2-Factor Authentication** on your Gmail account
+2. Go to https://myaccount.google.com/apppasswords
+3. Create a new app password (name it "MEDXI")
+4. Copy the 16-character password (remove spaces)
+5. Update your `.env`:
+
+```env
+EMAIL_MODE=gmail
+GMAIL_USER=your-email@gmail.com
+GMAIL_APP_PASSWORD=abcd efgh ijkl mnop  # Your 16-char app password
+```
+
+6. Restart the server
+
+**⚠️ Important:** Never use your regular Gmail password! You MUST use an App Password.
+
+**Toggle Anytime:**
+```bash
+# Switch to local testing
+EMAIL_MODE=maildev npm start
+
+# Switch to real emails
+EMAIL_MODE=gmail npm start
+```
+
 ## 🚀 Running the Application
 
 ### Start Backend Server

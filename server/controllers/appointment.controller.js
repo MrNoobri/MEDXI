@@ -65,22 +65,29 @@ const createAppointment = async (req, res) => {
     // Send appointment confirmation email
     if (emailService.isAvailable() && appointment.patientId.email) {
       try {
-        const appointmentDate = new Date(scheduledAt).toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-        const appointmentTime = new Date(scheduledAt).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        const appointmentDate = new Date(scheduledAt).toLocaleDateString(
+          "en-US",
+          {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          },
+        );
+        const appointmentTime = new Date(scheduledAt).toLocaleTimeString(
+          "en-US",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          },
+        );
 
         await emailService.sendAppointmentConfirmation({
           to: appointment.patientId.email,
           patientName: `${appointment.patientId.profile.firstName} ${appointment.patientId.profile.lastName}`,
           providerName: `${appointment.providerId.profile.firstName} ${appointment.providerId.profile.lastName}`,
-          specialization: provider.providerInfo?.specialization || "Healthcare Provider",
+          specialization:
+            provider.providerInfo?.specialization || "Healthcare Provider",
           appointmentDate,
           appointmentTime,
           duration: duration || 30,
@@ -88,7 +95,10 @@ const createAppointment = async (req, res) => {
           dashboardUrl: `${process.env.CLIENT_URL}/dashboard/appointments`,
         });
       } catch (emailError) {
-        console.error("Failed to send appointment confirmation email:", emailError);
+        console.error(
+          "Failed to send appointment confirmation email:",
+          emailError,
+        );
         // Don't fail the request if email fails
       }
     }

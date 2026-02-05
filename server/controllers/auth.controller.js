@@ -478,7 +478,8 @@ const requestPasswordReset = async (req, res) => {
     if (!user) {
       return res.json({
         success: true,
-        message: "If an account with that email exists, a password reset link has been sent",
+        message:
+          "If an account with that email exists, a password reset link has been sent",
       });
     }
 
@@ -493,7 +494,8 @@ const requestPasswordReset = async (req, res) => {
     // Send password reset email
     const response = {
       success: true,
-      message: "If an account with that email exists, a password reset link has been sent",
+      message:
+        "If an account with that email exists, a password reset link has been sent",
     };
 
     if (emailService.isAvailable()) {
@@ -641,7 +643,10 @@ const updateProfile = async (req, res) => {
             verificationUrl,
           });
         } catch (emailError) {
-          console.error("Failed to send verification email to new address:", emailError);
+          console.error(
+            "Failed to send verification email to new address:",
+            emailError,
+          );
         }
       }
 

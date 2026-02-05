@@ -8,10 +8,12 @@ const helmet = require("helmet");
 const app = express();
 
 // Security Middleware
-app.use(helmet({
-  contentSecurityPolicy: false, // Disable for development; configure properly in production
-  crossOriginEmbedderPolicy: false,
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Disable for development; configure properly in production
+    crossOriginEmbedderPolicy: false,
+  }),
+);
 
 // Middleware
 app.use(

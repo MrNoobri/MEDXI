@@ -10,8 +10,12 @@ class EmailService {
     this.provider = new SMTPProvider();
 
     if (!this.provider.isConfigured()) {
-      console.warn("⚠️ SMTP not configured. Email functionality will be disabled.");
-      console.warn("💡 For development: Run 'docker compose -f docker-compose.dev.yml up maildev'");
+      console.warn(
+        "⚠️ SMTP not configured. Email functionality will be disabled.",
+      );
+      console.warn(
+        "💡 For development: Run 'docker compose -f docker-compose.dev.yml up maildev'",
+      );
     } else {
       console.log("✓ Email service initialized with SMTP provider");
     }
