@@ -3,8 +3,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const helmet = require("helmet");
 
 const app = express();
+
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable for development; configure properly in production
+  crossOriginEmbedderPolicy: false,
+}));
 
 // Middleware
 app.use(
