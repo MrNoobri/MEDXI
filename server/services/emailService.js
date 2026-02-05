@@ -1,29 +1,19 @@
 const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
-const SendGridProvider = require("./email/providers/SendGridProvider");
-const MailgunProvider = require("./email/providers/MailgunProvider");
 const SMTPProvider = require("./email/providers/SMTPProvider");
 const AuditLog = require("../models/AuditLog.model");
 
 class EmailService {
   constructor() {
-    // Initialize providers in priority order
-    this.providers = [
-      new SendGridProvider(),
-      new MailgunProvider(),
-      new SMTPProvider(),
-    ];
+    // Initialize SMTP provider only
+    this.provider = new SMTPProvider();
 
-    // Filter to only configured providers
-    this.configuredProviders = this.providers.filter((p) => p.isConfigured());
-
-    if (this.configuredProviders.length === 0) {
-      console.warn("⚠️ No email providers configured. Email functionality will be disabled.");
+    if (!this.provider.isConfigured()) {
+      console.warn("⚠️ SMTP not configured. Email functionality will be disabled.");
+      console.warn("💡 For development: Run 'docker compose -f docker-compose.dev.yml up maildev'");
     } else {
-      console.log(
-        `✓ Email service initialized with providers: ${this.configuredProviders.map((p) => p.getName()).join(", ")}`,
-      );
+      console.log("✓ Email service initialized with SMTP provider");
     }
 
     // Load and compile templates
@@ -68,58 +58,60 @@ class EmailService {
    * @returns {Promise<Object>} Result object
    */
   async sendWithRetry(options, maxRetries = 3) {
+    if (!this.provider.isConfigured()) {
+      throw new Error("SMTP provider is not configured");
+    }
+
     let lastError;
 
-    for (const provider of this.configuredProviders) {
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(
-            `Attempting to send email via ${provider.getName()} (attempt ${attempt}/${maxRetries})`,
-          );
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(
+          `Attempting to send email via SMTP (attempt ${attempt}/${maxRetries})`,
+        );
 
-          const result = await provider.send(options);
+        const result = await this.provider.send(options);
 
-          // Log success
-          await this.logEmailAttempt({
-            to: options.to,
-            subject: options.subject,
-            provider: provider.getName(),
-            status: "success",
-            attempt,
-            messageId: result.messageId,
-          });
+        // Log success
+        await this.logEmailAttempt({
+          to: options.to,
+          subject: options.subject,
+          provider: "SMTP",
+          status: "success",
+          attempt,
+          messageId: result.messageId,
+        });
 
-          console.log(`✓ Email sent successfully via ${provider.getName()}`);
-          return result;
-        } catch (error) {
-          lastError = error;
-          console.error(
-            `✗ Email failed via ${provider.getName()} (attempt ${attempt}): ${error.message}`,
-          );
+        console.log("✓ Email sent successfully via SMTP");
+        return result;
+      } catch (error) {
+        lastError = error;
+        console.error(
+          `✗ Email failed via SMTP (attempt ${attempt}): ${error.message}`,
+        );
 
-          // Log failure
-          await this.logEmailAttempt({
-            to: options.to,
-            subject: options.subject,
-            provider: provider.getName(),
-            status: "failed",
-            attempt,
-            error: error.message,
-          });
+        // Log failure
+        await this.logEmailAttempt({
+          to: options.to,
+          subject: options.subject,
+          provider: "SMTP",
+          status: "failed",
+          attempt,
+          error: error.message,
+        });
 
-          // Exponential backoff: wait 2^attempt seconds before retry
-          if (attempt < maxRetries) {
-            const delay = Math.pow(2, attempt) * 1000;
-            console.log(`Waiting ${delay}ms before retry...`);
-            await this.sleep(delay);
-          }
+        // Exponential backoff: wait 2^attempt seconds before retry
+        if (attempt < maxRetries) {
+          const delay = Math.pow(2, attempt) * 1000;
+          console.log(`Waiting ${delay}ms before retry...`);
+          await this.sleep(delay);
         }
       }
     }
 
-    // All providers and retries failed
+    // All retries failed
     throw new Error(
-      `Failed to send email after ${maxRetries} attempts with all providers. Last error: ${lastError.message}`,
+      `Failed to send email after ${maxRetries} attempts. Last error: ${lastError.message}`,
     );
   }
 
@@ -270,7 +262,7 @@ class EmailService {
    * Check if email service is available
    */
   isAvailable() {
-    return this.configuredProviders.length > 0;
+    return this.provider.isConfigured();
   }
 }
 
