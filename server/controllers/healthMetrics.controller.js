@@ -219,6 +219,7 @@ const getLatestMetrics = async (req, res) => {
       "weight",
       "calories",
       "oxygenSaturation",
+      "distance",
     ];
 
     const latestMetrics = {};

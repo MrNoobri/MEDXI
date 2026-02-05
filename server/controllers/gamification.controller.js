@@ -109,7 +109,9 @@ const awardPoints = async (userId, metricType) => {
     if (stats.lastActivityDate) {
       const lastActivity = new Date(stats.lastActivityDate);
       lastActivity.setHours(0, 0, 0, 0);
-      const daysDiff = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
+      const daysDiff = Math.floor(
+        (today - lastActivity) / (1000 * 60 * 60 * 24),
+      );
 
       if (daysDiff === 1) {
         // Consecutive day
@@ -159,25 +161,69 @@ const checkAndAwardAchievement = async (userId, type, level = 1) => {
 
     const achievements = {
       steps_milestone: {
-        1: { title: "First Steps", description: "Logged your first 10,000 steps", icon: "🚶" },
-        2: { title: "Step Master", description: "Achieved 100,000 total steps", icon: "🏃" },
-        3: { title: "Marathon Walker", description: "Reached 1,000,000 total steps", icon: "🏆" },
+        1: {
+          title: "First Steps",
+          description: "Logged your first 10,000 steps",
+          icon: "🚶",
+        },
+        2: {
+          title: "Step Master",
+          description: "Achieved 100,000 total steps",
+          icon: "🏃",
+        },
+        3: {
+          title: "Marathon Walker",
+          description: "Reached 1,000,000 total steps",
+          icon: "🏆",
+        },
       },
       daily_streak: {
-        1: { title: "Week Warrior", description: "7-day logging streak", icon: "🔥" },
-        2: { title: "Monthly Champion", description: "30-day logging streak", icon: "🌟" },
-        3: { title: "Century Streaker", description: "100-day logging streak", icon: "💎" },
+        1: {
+          title: "Week Warrior",
+          description: "7-day logging streak",
+          icon: "🔥",
+        },
+        2: {
+          title: "Monthly Champion",
+          description: "30-day logging streak",
+          icon: "🌟",
+        },
+        3: {
+          title: "Century Streaker",
+          description: "100-day logging streak",
+          icon: "💎",
+        },
       },
       fitness_master: {
-        1: { title: "Getting Started", description: "Reached level 5", icon: "🎯" },
-        2: { title: "Health Enthusiast", description: "Reached level 10", icon: "💪" },
-        3: { title: "Fitness Legend", description: "Reached level 20", icon: "👑" },
+        1: {
+          title: "Getting Started",
+          description: "Reached level 5",
+          icon: "🎯",
+        },
+        2: {
+          title: "Health Enthusiast",
+          description: "Reached level 10",
+          icon: "💪",
+        },
+        3: {
+          title: "Fitness Legend",
+          description: "Reached level 20",
+          icon: "👑",
+        },
       },
       heart_health: {
-        1: { title: "Heart Monitor", description: "Logged 30 heart rate readings", icon: "❤️" },
+        1: {
+          title: "Heart Monitor",
+          description: "Logged 30 heart rate readings",
+          icon: "❤️",
+        },
       },
       sleep_champion: {
-        1: { title: "Sleep Tracker", description: "Logged 7 days of sleep data", icon: "😴" },
+        1: {
+          title: "Sleep Tracker",
+          description: "Logged 7 days of sleep data",
+          icon: "😴",
+        },
       },
     };
 

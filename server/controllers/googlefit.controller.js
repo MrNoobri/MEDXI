@@ -246,7 +246,7 @@ async function syncGoogleFitData(userId) {
       sleep: "derived:com.google.sleep.segment:com.google.android.gms:merged",
     };
 
-    // Fetch Steps - Per minute for detailed tracking
+    // Fetch Steps - Daily aggregation for dashboard display
     try {
       const stepsResponse = await fitness.users.dataset.aggregate({
         userId: "me",
@@ -256,7 +256,7 @@ async function syncGoogleFitData(userId) {
               dataTypeName: "com.google.step_count.delta",
             },
           ],
-          bucketByTime: { durationMillis: 3600000 }, // Hourly buckets for more granular data
+          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
           startTimeMillis: startTime,
           endTimeMillis: endTime,
         },
@@ -265,26 +265,29 @@ async function syncGoogleFitData(userId) {
       if (stepsResponse.data.bucket) {
         for (const bucket of stepsResponse.data.bucket) {
           if (bucket.dataset && bucket.dataset[0]?.point) {
+            let totalSteps = 0;
             for (const point of bucket.dataset[0].point) {
               const steps = point.value?.[0]?.intVal;
               if (steps > 0) {
-                await HealthMetric.findOneAndUpdate(
-                  {
-                    userId: userId,
-                    metricType: "steps",
-                    timestamp: new Date(
-                      parseInt(point.startTimeNanos) / 1000000,
-                    ),
-                  },
-                  {
-                    value: steps,
-                    unit: "steps",
-                    source: "google_fit",
-                  },
-                  { upsert: true, new: true },
-                );
-                metricsProcessed.steps++;
+                totalSteps += steps;
               }
+            }
+
+            if (totalSteps > 0) {
+              await HealthMetric.findOneAndUpdate(
+                {
+                  userId: userId,
+                  metricType: "steps",
+                  timestamp: new Date(parseInt(bucket.startTimeMillis)),
+                },
+                {
+                  value: totalSteps,
+                  unit: "steps",
+                  source: "google_fit",
+                },
+                { upsert: true, new: true },
+              );
+              metricsProcessed.steps++;
             }
           }
         }

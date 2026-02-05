@@ -11,6 +11,7 @@ import InsightsWidget from "../components/dashboard/InsightsWidget";
 import RecipesWidget from "../components/dashboard/RecipesWidget";
 import WearableDevices from "../components/wearables/WearableDevices";
 import GoogleFitConnect from "../components/GoogleFitConnect";
+import GamificationWidget from "../components/gamification/GamificationWidget";
 import { healthMetricsAPI, alertsAPI } from "../api";
 
 const PatientDashboard = () => {
@@ -35,6 +36,7 @@ const PatientDashboard = () => {
       const response = await healthMetricsAPI.getLatest();
       return response.data.data;
     },
+    refetchInterval: 120000, // Auto-refresh every 2 minutes
   });
 
   // Fetch alerts
@@ -67,17 +69,41 @@ const PatientDashboard = () => {
 
   const getMetricStatus = (metricType, value) => {
     const thresholds = {
-      heartRate: { min: 60, max: 100 },
-      bloodGlucose: { min: 70, max: 140 },
-      oxygenSaturation: { min: 95, max: 100 },
+      heartRate: { min: 40, max: 140, criticalMin: 35, criticalMax: 180 },
+      bloodGlucose: { min: 70, max: 140, criticalMin: 55, criticalMax: 200 },
+      oxygenSaturation: {
+        min: 92,
+        max: 100,
+        criticalMin: 85,
+        criticalMax: 100,
+      },
+      bloodPressure: {
+        systolicMax: 140,
+        diastolicMax: 90,
+        systolicCritical: 180,
+        diastolicCritical: 120,
+      },
+      steps: { min: 0, max: 50000, criticalMin: 0, criticalMax: 100000 }, // Daily steps
+      sleep: { min: 4, max: 12, criticalMin: 2, criticalMax: 16 }, // Hours per night
     };
 
     if (!thresholds[metricType]) return "normal";
 
-    const numValue = typeof value === "object" ? value.systolic : value;
-    const { min, max } = thresholds[metricType];
+    // Handle blood pressure separately
+    if (metricType === "bloodPressure" && typeof value === "object") {
+      const { systolic, diastolic } = value;
+      const bp = thresholds.bloodPressure;
+      if (systolic >= bp.systolicCritical || diastolic >= bp.diastolicCritical)
+        return "critical";
+      if (systolic >= bp.systolicMax || diastolic >= bp.diastolicMax)
+        return "warning";
+      return "normal";
+    }
 
-    if (numValue < min * 0.8 || numValue > max * 1.2) return "critical";
+    const numValue = typeof value === "object" ? value.systolic : value;
+    const { min, max, criticalMin, criticalMax } = thresholds[metricType];
+
+    if (numValue < criticalMin || numValue > criticalMax) return "critical";
     if (numValue < min || numValue > max) return "warning";
     return "normal";
   };
@@ -85,6 +111,15 @@ const PatientDashboard = () => {
   const formatValue = (metricType, value) => {
     if (metricType === "bloodPressure" && typeof value === "object") {
       return `${value.systolic}/${value.diastolic}`;
+    }
+    if (metricType === "distance") {
+      return value?.toFixed?.(2) || value;
+    }
+    if (metricType === "weight") {
+      return value?.toFixed?.(1) || value;
+    }
+    if (metricType === "steps" || metricType === "calories") {
+      return Math.round(value) || value;
     }
     return value?.toFixed?.(1) || value;
   };
@@ -98,6 +133,8 @@ const PatientDashboard = () => {
     sleep: "😴",
     calories: "🔥",
     waterIntake: "💧",
+    distance: "🏃",
+    weight: "⚖️",
   };
 
   // Simulator functions
@@ -279,6 +316,9 @@ const PatientDashboard = () => {
                   steps: "Steps",
                   sleep: "Sleep",
                   bloodGlucose: "Blood Glucose",
+                  calories: "Calories",
+                  distance: "Distance",
+                  weight: "Weight",
                 }).map(([key, label]) => {
                   const metric = latestMetrics?.[key];
                   return (
@@ -322,37 +362,50 @@ const PatientDashboard = () => {
               </div>
             )}
 
-            {/* Quick Actions Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="card hover:shadow-lg transition-shadow cursor-pointer">
-                <h3 className="text-lg font-semibold mb-2">📅 Appointments</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Book or manage your appointments
-                </p>
-                <button className="btn btn-primary w-full">
-                  View Appointments
-                </button>
+            {/* Quick Actions & Gamification Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="card hover:shadow-lg transition-shadow cursor-pointer">
+                  <h3 className="text-lg font-semibold mb-2">
+                    📅 Appointments
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Book or manage your appointments
+                  </p>
+                  <button className="btn btn-primary w-full">
+                    View Appointments
+                  </button>
+                </div>
+
+                <div className="card hover:shadow-lg transition-shadow cursor-pointer">
+                  <h3 className="text-lg font-semibold mb-2">💬 Messages</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Chat with your healthcare provider
+                  </p>
+                  <button className="btn btn-primary w-full">
+                    View Messages
+                  </button>
+                </div>
+
+                <div
+                  className="card hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => setShowChatbot(true)}
+                >
+                  <h3 className="text-lg font-semibold mb-2">
+                    🤖 AI Assistant
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Get instant health guidance
+                  </p>
+                  <button className="btn btn-primary w-full">
+                    Ask MEDXI AI
+                  </button>
+                </div>
               </div>
 
-              <div className="card hover:shadow-lg transition-shadow cursor-pointer">
-                <h3 className="text-lg font-semibold mb-2">💬 Messages</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Chat with your healthcare provider
-                </p>
-                <button className="btn btn-primary w-full">
-                  View Messages
-                </button>
-              </div>
-
-              <div
-                className="card hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => setShowChatbot(true)}
-              >
-                <h3 className="text-lg font-semibold mb-2">🤖 AI Assistant</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Get instant health guidance
-                </p>
-                <button className="btn btn-primary w-full">Ask MEDXI AI</button>
+              {/* Gamification Widget */}
+              <div className="lg:col-span-1">
+                <GamificationWidget />
               </div>
             </div>
 
@@ -367,7 +420,7 @@ const PatientDashboard = () => {
         {/* Wearables Tab */}
         {activeTab === "wearables" && (
           <div className="space-y-6">
-            <GoogleFitConnect />
+            <GoogleFitConnect onSyncComplete={refetchMetrics} />
             <WearableDevices
               isSimulating={isSimulating}
               simulatorData={simulatorData}
