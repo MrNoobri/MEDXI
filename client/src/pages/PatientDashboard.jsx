@@ -300,7 +300,10 @@ const PatientDashboard = () => {
                         {alertsData[0]?.message}
                       </p>
                     </div>
-                    <button className="ml-4 px-4 py-2 bg-white border border-warning-300 text-warning-700 rounded-lg hover:bg-warning-50 transition-colors text-sm font-medium">
+                    <button 
+                      onClick={() => window.location.href = '/alerts'}
+                      className="ml-4 px-4 py-2 bg-white border border-warning-300 text-warning-700 rounded-lg hover:bg-warning-50 transition-colors text-sm font-medium"
+                    >
                       View All
                     </button>
                   </div>
