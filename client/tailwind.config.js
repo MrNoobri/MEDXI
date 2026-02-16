@@ -1,9 +1,13 @@
+import tokens from './src/theme/tokens.json';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: 'class', // Enable dark mode with class strategy
   theme: {
     extend: {
       colors: {
+        // Existing brand colors
         primary: {
           50: "#e6f7f7",
           100: "#b3e6e6",
@@ -31,8 +35,20 @@ export default {
           DEFAULT: "#ef4444",
           dark: "#dc2626",
         },
+        // Figma design tokens
+        ...tokens.colors,
+      },
+      borderRadius: {
+        ...tokens.borderRadius,
+      },
+      fontSize: {
+        ...tokens.fontSize,
+      },
+      fontWeight: {
+        ...tokens.fontWeight,
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 };
+
