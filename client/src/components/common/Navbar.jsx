@@ -1,9 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import useNotifications from "../../hooks/useNotifications";
+import Toast from "./Toast";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { unreadCount, toast, setToast, markAllRead } = useNotifications();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -56,6 +59,21 @@ const Navbar = () => {
 
           {user && (
             <div className="flex items-center space-x-4">
+              <button
+                onClick={() => {
+                  navigate("/alerts");
+                  markAllRead();
+                }}
+                className="relative text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                aria-label="View alerts"
+              >
+                Alerts
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
               <span className="text-gray-700 text-sm">
                 {user.profile?.firstName} {user.profile?.lastName}
                 <span className="text-xs text-gray-500 ml-2">
@@ -78,6 +96,13 @@ const Navbar = () => {
           )}
         </div>
       </div>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </nav>
   );
 };

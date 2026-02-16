@@ -2,6 +2,7 @@ const Appointment = require("../models/Appointment.model");
 const User = require("../models/User.model");
 const { createAuditLog } = require("../middleware/audit.middleware");
 const emailService = require("../services/emailService");
+const { notifyUser } = require("../socket");
 
 /**
  * Create appointment
@@ -61,6 +62,9 @@ const createAppointment = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.headers["user-agent"],
     });
+
+    notifyUser(patientId, "appointment:confirmed", { appointment });
+    notifyUser(providerId, "appointment:confirmed", { appointment });
 
     // Send appointment confirmation email
     if (emailService.isAvailable() && appointment.patientId.email) {

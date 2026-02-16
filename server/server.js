@@ -1,11 +1,14 @@
 require("dotenv").config();
 const express = require("express");
+const http = require("http");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 
 const app = express();
+const httpServer = http.createServer(app);
+const { initSocket } = require("./socket");
 
 // Security Middleware
 app.use(
@@ -28,10 +31,7 @@ app.use(cookieParser());
 
 // MongoDB Connection
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("✓ MongoDB connected successfully"))
   .catch((err) => {
     console.error("✗ MongoDB connection error:", err);
@@ -77,7 +77,9 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+initSocket(httpServer);
+
+httpServer.listen(PORT, () => {
   console.log(`✓ Server running on port ${PORT}`);
   console.log(`✓ Environment: ${process.env.NODE_ENV}`);
 });
