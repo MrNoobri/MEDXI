@@ -1,27 +1,55 @@
-import { useState, useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/shared/Card';
-import { Button } from '../ui/shared/Button';
-import { Input } from '../ui/shared/Input';
-import { Label } from '../ui/shared/Label';
-import { Toast } from '../ui/feedback/Toast';
-import api from '../api/axios';
+import { useState, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useNavigate } from "react-router-dom";
+import {
+  User,
+  Mail,
+  Phone,
+  Upload,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/shared/Card";
+import { Button } from "../ui/shared/Button";
+import { Input } from "../ui/shared/Input";
+import { Label } from "../ui/shared/Label";
+import { Toast } from "../ui/feedback/Toast";
+import api from "../api/axios";
 
-const profileSchema = yup.object({
-  firstName: yup.string().required('First name is required').min(2, 'Minimum 2 characters'),
-  lastName: yup.string().required('Last name is required').min(2, 'Minimum 2 characters'),
-  email: yup.string().email('Invalid email').required('Email is required'),
-  phone: yup.string().test('phone-format', 'Invalid phone number', value => !value || /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/.test(value)),
-}).required();
+const profileSchema = yup
+  .object({
+    firstName: yup
+      .string()
+      .required("First name is required")
+      .min(2, "Minimum 2 characters"),
+    lastName: yup
+      .string()
+      .required("Last name is required")
+      .min(2, "Minimum 2 characters"),
+    email: yup.string().email("Invalid email").required("Email is required"),
+    phone: yup
+      .string()
+      .test(
+        "phone-format",
+        "Invalid phone number",
+        (value) =>
+          !value ||
+          /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/.test(
+            value,
+          ),
+      ),
+  })
+  .required();
 
 export default function MyAccount({ user }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState(user?.profile?.avatarUrl || null);
+  const [avatarPreview, setAvatarPreview] = useState(
+    user?.profile?.avatarUrl || null,
+  );
   const [avatarFile, setAvatarFile] = useState(null);
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
@@ -42,10 +70,10 @@ export default function MyAccount({ user }) {
   } = useForm({
     resolver: yupResolver(profileSchema),
     defaultValues: {
-      firstName: user?.profile?.firstName || '',
-      lastName: user?.profile?.lastName || '',
-      email: user?.email || '',
-      phone: user?.profile?.phone || '',
+      firstName: user?.profile?.firstName || "",
+      lastName: user?.profile?.lastName || "",
+      email: user?.email || "",
+      phone: user?.profile?.phone || "",
     },
   });
 
@@ -53,17 +81,17 @@ export default function MyAccount({ user }) {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setToast({ message: 'Please upload an image file', type: 'error' });
+      if (!file.type.startsWith("image/")) {
+        setToast({ message: "Please upload an image file", type: "error" });
         return;
       }
-      
+
       // Validate file size
       if (file.size > 5 * 1024 * 1024) {
-        setToast({ message: 'File size must be less than 5MB', type: 'error' });
+        setToast({ message: "File size must be less than 5MB", type: "error" });
         return;
       }
-      
+
       setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setAvatarPreview(reader.result);
@@ -79,15 +107,15 @@ export default function MyAccount({ user }) {
       let avatarUrl = avatarPreview;
       if (avatarFile) {
         const formData = new FormData();
-        formData.append('avatar', avatarFile);
-        const uploadResponse = await api.post('/uploads/avatar', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        formData.append("avatar", avatarFile);
+        const uploadResponse = await api.post("/uploads/avatar", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
         avatarUrl = uploadResponse.data.data.url;
       }
 
       // Update profile
-      await api.put('/users/me', {
+      await api.put("/users/me", {
         profile: {
           firstName: data.firstName,
           lastName: data.lastName,
@@ -97,26 +125,27 @@ export default function MyAccount({ user }) {
         email: data.email,
       });
 
-      setToast({ message: 'Profile updated successfully!', type: 'success' });
-      
+      setToast({ message: "Profile updated successfully!", type: "success" });
+
       // If email changed, show verification notice
       if (data.email !== user?.email) {
         // Clear existing timeout before setting new one
         if (toastTimeoutRef.current) {
           clearTimeout(toastTimeoutRef.current);
         }
-        
+
         toastTimeoutRef.current = setTimeout(() => {
-          setToast({ 
-            message: 'Email changed. Please check your inbox to verify your new email address.', 
-            type: 'info' 
+          setToast({
+            message:
+              "Email changed. Please check your inbox to verify your new email address.",
+            type: "info",
           });
         }, 3000);
       }
     } catch (error) {
-      setToast({ 
-        message: error.response?.data?.message || 'Failed to update profile', 
-        type: 'error' 
+      setToast({
+        message: error.response?.data?.message || "Failed to update profile",
+        type: "error",
       });
     } finally {
       setIsLoading(false);
@@ -137,7 +166,11 @@ export default function MyAccount({ user }) {
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
                     {avatarPreview ? (
-                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <User className="w-16 h-16 text-gray-400" />
                     )}
@@ -164,12 +197,17 @@ export default function MyAccount({ user }) {
                   <Label htmlFor="firstName">First Name *</Label>
                   <Input
                     id="firstName"
-                    {...register('firstName')}
-                    aria-invalid={errors.firstName ? 'true' : 'false'}
-                    aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+                    {...register("firstName")}
+                    aria-invalid={errors.firstName ? "true" : "false"}
+                    aria-describedby={
+                      errors.firstName ? "firstName-error" : undefined
+                    }
                   />
                   {errors.firstName && (
-                    <p id="firstName-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <p
+                      id="firstName-error"
+                      className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                    >
                       <AlertCircle className="w-4 h-4" />
                       {errors.firstName.message}
                     </p>
@@ -180,12 +218,17 @@ export default function MyAccount({ user }) {
                   <Label htmlFor="lastName">Last Name *</Label>
                   <Input
                     id="lastName"
-                    {...register('lastName')}
-                    aria-invalid={errors.lastName ? 'true' : 'false'}
-                    aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+                    {...register("lastName")}
+                    aria-invalid={errors.lastName ? "true" : "false"}
+                    aria-describedby={
+                      errors.lastName ? "lastName-error" : undefined
+                    }
                   />
                   {errors.lastName && (
-                    <p id="lastName-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <p
+                      id="lastName-error"
+                      className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                    >
                       <AlertCircle className="w-4 h-4" />
                       {errors.lastName.message}
                     </p>
@@ -202,13 +245,16 @@ export default function MyAccount({ user }) {
                     id="email"
                     type="email"
                     className="pl-10"
-                    {...register('email')}
-                    aria-invalid={errors.email ? 'true' : 'false'}
-                    aria-describedby={errors.email ? 'email-error' : undefined}
+                    {...register("email")}
+                    aria-invalid={errors.email ? "true" : "false"}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                   />
                 </div>
                 {errors.email && (
-                  <p id="email-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <p
+                    id="email-error"
+                    className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                  >
                     <AlertCircle className="w-4 h-4" />
                     {errors.email.message}
                   </p>
@@ -225,13 +271,16 @@ export default function MyAccount({ user }) {
                     type="tel"
                     className="pl-10"
                     placeholder="+1 (555) 123-4567"
-                    {...register('phone')}
-                    aria-invalid={errors.phone ? 'true' : 'false'}
-                    aria-describedby={errors.phone ? 'phone-error' : undefined}
+                    {...register("phone")}
+                    aria-invalid={errors.phone ? "true" : "false"}
+                    aria-describedby={errors.phone ? "phone-error" : undefined}
                   />
                 </div>
                 {errors.phone && (
-                  <p id="phone-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <p
+                    id="phone-error"
+                    className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                  >
                     <AlertCircle className="w-4 h-4" />
                     {errors.phone.message}
                   </p>
@@ -271,7 +320,13 @@ export default function MyAccount({ user }) {
         </Card>
       </div>
 
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

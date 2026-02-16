@@ -12,12 +12,14 @@ let activeRequests = 0;
 
 // Dispatch custom events for loading state
 const dispatchLoadingEvent = (isLoading) => {
-  window.dispatchEvent(new CustomEvent('api-loading', { detail: { isLoading } }));
+  window.dispatchEvent(
+    new CustomEvent("api-loading", { detail: { isLoading } }),
+  );
 };
 
 // Dispatch custom events for errors
 const dispatchErrorEvent = (error) => {
-  window.dispatchEvent(new CustomEvent('api-error', { detail: { error } }));
+  window.dispatchEvent(new CustomEvent("api-error", { detail: { error } }));
 };
 
 // Request interceptor to add auth token and handle loading
@@ -27,13 +29,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Increment active requests and show loading
     activeRequests++;
     if (activeRequests === 1) {
       dispatchLoadingEvent(true);
     }
-    
+
     return config;
   },
   (error) => {

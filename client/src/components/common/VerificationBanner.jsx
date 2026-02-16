@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { Mail, X, Loader2, CheckCircle } from 'lucide-react';
-import { Button } from '../ui/shared/Button';
-import api from '../api/axios';
+import { useState, useEffect, useRef } from "react";
+import { Mail, X, Loader2, CheckCircle } from "lucide-react";
+import { Button } from "../ui/shared/Button";
+import api from "../api/axios";
 
 export default function VerificationBanner({ user, onDismiss }) {
   const [isResending, setIsResending] = useState(false);
@@ -24,24 +24,24 @@ export default function VerificationBanner({ user, onDismiss }) {
   const handleResend = async () => {
     try {
       setIsResending(true);
-      await api.post('/auth/resend-verification');
+      await api.post("/auth/resend-verification");
       setShowSuccess(true);
-      
+
       // Clear existing timeout before setting new one
       if (successTimeoutRef.current) {
         clearTimeout(successTimeoutRef.current);
       }
-      
+
       successTimeoutRef.current = setTimeout(() => setShowSuccess(false), 5000);
     } catch (error) {
-      console.error('Failed to resend verification email:', error);
+      console.error("Failed to resend verification email:", error);
     } finally {
       setIsResending(false);
     }
   };
 
   return (
-    <div 
+    <div
       className="bg-yellow-50 dark:bg-yellow-950 border-b border-yellow-200 dark:border-yellow-800 px-4 py-3"
       role="alert"
       aria-live="polite"
@@ -51,8 +51,8 @@ export default function VerificationBanner({ user, onDismiss }) {
           <Mail className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              <span className="font-medium">Verify your email address.</span>
-              {' '}We've sent a verification link to <strong>{user.email}</strong>.
+              <span className="font-medium">Verify your email address.</span>{" "}
+              We've sent a verification link to <strong>{user.email}</strong>.
               {showSuccess && (
                 <span className="inline-flex items-center gap-1 ml-2 text-green-700 dark:text-green-300">
                   <CheckCircle className="w-4 h-4" />
@@ -62,7 +62,7 @@ export default function VerificationBanner({ user, onDismiss }) {
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -77,10 +77,10 @@ export default function VerificationBanner({ user, onDismiss }) {
                 Sending...
               </>
             ) : (
-              'Resend'
+              "Resend"
             )}
           </Button>
-          
+
           {onDismiss && (
             <button
               onClick={onDismiss}

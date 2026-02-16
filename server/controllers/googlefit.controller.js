@@ -197,7 +197,8 @@ async function syncGoogleFitData(userId) {
   try {
     const user = await User.findById(userId);
     if (!user || !user.googleFitConnected || !user.googleFitTokens) {
-      throw new Error("Google Fit not connected");
+      console.log(`Google Fit not connected for user ${userId}`);
+      return;
     }
 
     // Set up OAuth client with user's tokens
@@ -211,6 +212,21 @@ async function syncGoogleFitData(userId) {
       access_token: user.googleFitTokens.accessToken,
       refresh_token: user.googleFitTokens.refreshToken,
       expiry_date: user.googleFitTokens.expiryDate,
+    });
+
+    // Handle token refresh on API calls
+    userOAuth2Client.on('tokens', async (tokens) => {
+      if (tokens.refresh_token) {
+        // Update refresh token if we got a new one
+        user.googleFitTokens.refreshToken = tokens.refresh_token;
+      }
+      if (tokens.access_token) {
+        user.googleFitTokens.accessToken = tokens.access_token;
+      }
+      if (tokens.expiry_date) {
+        user.googleFitTokens.expiryDate = tokens.expiry_date;
+      }
+      await user.save();
     });
 
     const fitness = google.fitness({ version: "v1", auth: userOAuth2Client });
@@ -687,8 +703,21 @@ async function syncGoogleFitData(userId) {
     console.log(`✓ Google Fit data synced for user ${userId}`);
     console.log(`  Metrics processed:`, metricsProcessed);
   } catch (error) {
-    console.error("Error in syncGoogleFitData:", error);
-    throw error;
+    console.error("Error in syncGoogleFitData:", error.message);
+    
+    // Handle invalid_grant error (expired/revoked tokens)
+    if (error.message && (error.message.includes('invalid_grant') || error.message.includes('invalid_client'))) {
+      console.log(`⚠️ Google Fit tokens expired for user ${userId}. User needs to reconnect.`);
+      
+      // Disconnect Google Fit for this user
+      const user = await User.findById(userId);
+      if (user) {
+        user.googleFitConnected = false;
+        user.googleFitTokens = null;
+        await user.save();
+        console.log(`✓ Google Fit disconnected for user ${userId} due to invalid tokens`);
+      }
+    }
   }
 }
 

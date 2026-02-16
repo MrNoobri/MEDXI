@@ -11,12 +11,12 @@ export function cn(...inputs) {
 /**
  * Format date for display
  */
-export function formatDate(date, format = 'PP') {
-  if (!date) return '';
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+export function formatDate(date, format = "PP") {
+  if (!date) return "";
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
@@ -24,11 +24,11 @@ export function formatDate(date, format = 'PP') {
  * Generate initials from name
  */
 export function getInitials(name) {
-  if (!name) return '??';
+  if (!name) return "??";
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 }

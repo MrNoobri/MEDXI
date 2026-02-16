@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 /**
  * Global loading spinner that displays during API requests
@@ -13,14 +13,14 @@ export default function LoadingOverlay() {
       setIsLoading(event.detail.isLoading);
     };
 
-    window.addEventListener('api-loading', handleLoadingEvent);
-    return () => window.removeEventListener('api-loading', handleLoadingEvent);
+    window.addEventListener("api-loading", handleLoadingEvent);
+    return () => window.removeEventListener("api-loading", handleLoadingEvent);
   }, []);
 
   if (!isLoading) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
       role="status"
       aria-live="polite"

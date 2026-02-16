@@ -1,19 +1,36 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Loader2, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/shared/Card';
-import { Button } from '../ui/shared/Button';
-import { Input } from '../ui/shared/Input';
-import { Label } from '../ui/shared/Label';
-import { Toast } from '../ui/feedback/Toast';
-import api from '../api/axios';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Mail,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../ui/shared/Card";
+import { Button } from "../ui/shared/Button";
+import { Input } from "../ui/shared/Input";
+import { Label } from "../ui/shared/Label";
+import { Toast } from "../ui/feedback/Toast";
+import api from "../api/axios";
 
-const forgotPasswordSchema = yup.object({
-  email: yup.string().email('Invalid email address').required('Email is required'),
-}).required();
+const forgotPasswordSchema = yup
+  .object({
+    email: yup
+      .string()
+      .email("Invalid email address")
+      .required("Email is required"),
+  })
+  .required();
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -32,16 +49,16 @@ export default function ForgotPassword() {
   const onSubmit = async (data) => {
     try {
       setIsLoading(true);
-      await api.post('/auth/forgot-password', { email: data.email });
+      await api.post("/auth/forgot-password", { email: data.email });
       setIsSuccess(true);
-      setToast({ 
-        message: 'Password reset instructions sent to your email', 
-        type: 'success' 
+      setToast({
+        message: "Password reset instructions sent to your email",
+        type: "success",
       });
     } catch (error) {
-      setToast({ 
-        message: 'Failed to send reset email. Please try again.', 
-        type: 'error' 
+      setToast({
+        message: "Failed to send reset email. Please try again.",
+        type: "error",
       });
     } finally {
       setIsLoading(false);
@@ -53,13 +70,17 @@ export default function ForgotPassword() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
-            <Link to="/login" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            <Link
+              to="/login"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <CardTitle>Forgot Password</CardTitle>
           </div>
           <CardDescription>
-            Enter your email address and we'll send you instructions to reset your password.
+            Enter your email address and we'll send you instructions to reset
+            your password.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -73,11 +94,11 @@ export default function ForgotPassword() {
                   Check Your Email
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  We've sent password reset instructions to your email address. 
+                  We've sent password reset instructions to your email address.
                   The link will expire in 1 hour.
                 </p>
               </div>
-              <Button className="w-full" onClick={() => navigate('/login')}>
+              <Button className="w-full" onClick={() => navigate("/login")}>
                 Back to Login
               </Button>
             </div>
@@ -92,13 +113,16 @@ export default function ForgotPassword() {
                     type="email"
                     placeholder="your.email@example.com"
                     className="pl-10"
-                    {...register('email')}
-                    aria-invalid={errors.email ? 'true' : 'false'}
-                    aria-describedby={errors.email ? 'email-error' : undefined}
+                    {...register("email")}
+                    aria-invalid={errors.email ? "true" : "false"}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                   />
                 </div>
                 {errors.email && (
-                  <p id="email-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <p
+                    id="email-error"
+                    className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                  >
                     <AlertCircle className="w-4 h-4" />
                     {errors.email.message}
                   </p>
@@ -112,13 +136,13 @@ export default function ForgotPassword() {
                     Sending...
                   </>
                 ) : (
-                  'Send Reset Instructions'
+                  "Send Reset Instructions"
                 )}
               </Button>
 
               <div className="text-center">
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                 >
                   Back to Login
@@ -129,7 +153,13 @@ export default function ForgotPassword() {
         </CardContent>
       </Card>
 
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

@@ -97,6 +97,7 @@ docker compose -f docker-compose.dev.yml up maildev
 ```
 
 Your `.env` should have:
+
 ```env
 EMAIL_MODE=maildev
 ```
@@ -124,6 +125,7 @@ GMAIL_APP_PASSWORD=abcd efgh ijkl mnop  # Your 16-char app password
 **⚠️ Important:** Never use your regular Gmail password! You MUST use an App Password.
 
 **Toggle Anytime:**
+
 ```bash
 # Switch to local testing
 EMAIL_MODE=maildev npm start
