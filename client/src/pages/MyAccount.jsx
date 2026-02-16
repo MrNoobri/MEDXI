@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -15,7 +15,7 @@ const profileSchema = yup.object({
   firstName: yup.string().required('First name is required').min(2, 'Minimum 2 characters'),
   lastName: yup.string().required('Last name is required').min(2, 'Minimum 2 characters'),
   email: yup.string().email('Invalid email').required('Email is required'),
-  phone: yup.string().matches(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, 'Invalid phone number'),
+  phone: yup.string().test('phone-format', 'Invalid phone number', value => !value || /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/.test(value)),
 }).required();
 
 export default function MyAccount({ user }) {
@@ -24,6 +24,16 @@ export default function MyAccount({ user }) {
   const [avatarPreview, setAvatarPreview] = useState(user?.profile?.avatarUrl || null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup timeout on unmount
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const {
     register,
@@ -42,10 +52,18 @@ export default function MyAccount({ user }) {
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setToast({ message: 'Please upload an image file', type: 'error' });
+        return;
+      }
+      
+      // Validate file size
       if (file.size > 5 * 1024 * 1024) {
         setToast({ message: 'File size must be less than 5MB', type: 'error' });
         return;
       }
+      
       setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setAvatarPreview(reader.result);
@@ -83,7 +101,12 @@ export default function MyAccount({ user }) {
       
       // If email changed, show verification notice
       if (data.email !== user?.email) {
-        setTimeout(() => {
+        // Clear existing timeout before setting new one
+        if (toastTimeoutRef.current) {
+          clearTimeout(toastTimeoutRef.current);
+        }
+        
+        toastTimeoutRef.current = setTimeout(() => {
           setToast({ 
             message: 'Email changed. Please check your inbox to verify your new email address.', 
             type: 'info' 
@@ -219,7 +242,7 @@ export default function MyAccount({ user }) {
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
                   type="submit"
-                  disabled={isLoading || !isDirty}
+                  disabled={isLoading || (!isDirty && !avatarFile)}
                   className="flex-1"
                 >
                   {isLoading ? (

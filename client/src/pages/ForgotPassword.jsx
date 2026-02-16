@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Loader2, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/shared/Card';
 import { Button } from '../ui/shared/Button';
@@ -16,6 +16,7 @@ const forgotPasswordSchema = yup.object({
 }).required();
 
 export default function ForgotPassword() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [toast, setToast] = useState(null);
@@ -76,11 +77,9 @@ export default function ForgotPassword() {
                   The link will expire in 1 hour.
                 </p>
               </div>
-              <Link to="/login">
-                <Button className="w-full">
-                  Back to Login
-                </Button>
-              </Link>
+              <Button className="w-full" onClick={() => navigate('/login')}>
+                Back to Login
+              </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -29,6 +29,7 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const redirectTimeoutRef = useRef(null);
   
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,8 +51,15 @@ export default function ResetPassword() {
   useEffect(() => {
     if (!token) {
       setToast({ message: 'Invalid or missing reset token', type: 'error' });
-      setTimeout(() => navigate('/forgot-password'), 3000);
+      redirectTimeoutRef.current = setTimeout(() => navigate('/forgot-password'), 3000);
     }
+    
+    return () => {
+      // Cleanup timeout on unmount
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
   }, [token, navigate]);
 
   useEffect(() => {
@@ -101,6 +109,23 @@ export default function ResetPassword() {
       setIsLoading(false);
     }
   };
+
+  // Show loading state while redirecting for invalid token
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center py-6">
+              <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">Redirecting...</p>
+            </div>
+          </CardContent>
+        </Card>
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">

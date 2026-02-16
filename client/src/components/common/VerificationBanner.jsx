@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Mail, X, Loader2, CheckCircle } from 'lucide-react';
 import { Button } from '../ui/shared/Button';
 import api from '../api/axios';
@@ -6,6 +6,16 @@ import api from '../api/axios';
 export default function VerificationBanner({ user, onDismiss }) {
   const [isResending, setIsResending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const successTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup timeout on unmount
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!user || user.emailVerified) {
     return null;
@@ -16,7 +26,13 @@ export default function VerificationBanner({ user, onDismiss }) {
       setIsResending(true);
       await api.post('/auth/resend-verification');
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 5000);
+      
+      // Clear existing timeout before setting new one
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+      
+      successTimeoutRef.current = setTimeout(() => setShowSuccess(false), 5000);
     } catch (error) {
       console.error('Failed to resend verification email:', error);
     } finally {

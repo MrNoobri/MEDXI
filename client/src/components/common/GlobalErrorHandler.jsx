@@ -10,7 +10,11 @@ export default function GlobalErrorHandler() {
 
   useEffect(() => {
     const handleErrorEvent = (event) => {
+      // Guard against missing event.detail
+      if (!event.detail) return;
+      
       const { error } = event.detail;
+      if (!error) return;
       
       // Extract error message from response
       const message = error.response?.data?.message 
