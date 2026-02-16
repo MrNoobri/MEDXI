@@ -1,0 +1,254 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { useNavigate } from 'react-router-dom';
+import { User, Mail, Phone, Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/shared/Card';
+import { Button } from '../ui/shared/Button';
+import { Input } from '../ui/shared/Input';
+import { Label } from '../ui/shared/Label';
+import { Toast } from '../ui/feedback/Toast';
+import api from '../api/axios';
+
+const profileSchema = yup.object({
+  firstName: yup.string().required('First name is required').min(2, 'Minimum 2 characters'),
+  lastName: yup.string().required('Last name is required').min(2, 'Minimum 2 characters'),
+  email: yup.string().email('Invalid email').required('Email is required'),
+  phone: yup.string().matches(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, 'Invalid phone number'),
+}).required();
+
+export default function MyAccount({ user }) {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(user?.profile?.avatarUrl || null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+  } = useForm({
+    resolver: yupResolver(profileSchema),
+    defaultValues: {
+      firstName: user?.profile?.firstName || '',
+      lastName: user?.profile?.lastName || '',
+      email: user?.email || '',
+      phone: user?.profile?.phone || '',
+    },
+  });
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setToast({ message: 'File size must be less than 5MB', type: 'error' });
+        return;
+      }
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatarPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      setIsLoading(true);
+
+      // Upload avatar if changed
+      let avatarUrl = avatarPreview;
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('avatar', avatarFile);
+        const uploadResponse = await api.post('/uploads/avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        avatarUrl = uploadResponse.data.data.url;
+      }
+
+      // Update profile
+      await api.put('/users/me', {
+        profile: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          avatarUrl,
+        },
+        email: data.email,
+      });
+
+      setToast({ message: 'Profile updated successfully!', type: 'success' });
+      
+      // If email changed, show verification notice
+      if (data.email !== user?.email) {
+        setTimeout(() => {
+          setToast({ 
+            message: 'Email changed. Please check your inbox to verify your new email address.', 
+            type: 'info' 
+          });
+        }, 3000);
+      }
+    } catch (error) {
+      setToast({ 
+        message: error.response?.data?.message || 'Failed to update profile', 
+        type: 'error' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>My Account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Avatar Upload */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-16 h-16 text-gray-400" />
+                    )}
+                  </div>
+                  <label className="absolute bottom-0 right-0 bg-primary-600 text-white p-2 rounded-full cursor-pointer hover:bg-primary-700 transition-colors">
+                    <Upload className="w-4 h-4" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="sr-only"
+                      aria-label="Upload avatar"
+                    />
+                  </label>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Click to upload a profile picture (max 5MB)
+                </p>
+              </div>
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    {...register('firstName')}
+                    aria-invalid={errors.firstName ? 'true' : 'false'}
+                    aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+                  />
+                  {errors.firstName && (
+                    <p id="firstName-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.firstName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    {...register('lastName')}
+                    aria-invalid={errors.lastName ? 'true' : 'false'}
+                    aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+                  />
+                  {errors.lastName && (
+                    <p id="lastName-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.lastName.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address *</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    className="pl-10"
+                    {...register('email')}
+                    aria-invalid={errors.email ? 'true' : 'false'}
+                    aria-describedby={errors.email ? 'email-error' : undefined}
+                  />
+                </div>
+                {errors.email && (
+                  <p id="email-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Phone Field */}
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    className="pl-10"
+                    placeholder="+1 (555) 123-4567"
+                    {...register('phone')}
+                    aria-invalid={errors.phone ? 'true' : 'false'}
+                    aria-describedby={errors.phone ? 'phone-error' : undefined}
+                  />
+                </div>
+                {errors.phone && (
+                  <p id="phone-error" className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.phone.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button
+                  type="submit"
+                  disabled={isLoading || !isDirty}
+                  className="flex-1"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate(-1)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </div>
+  );
+}
