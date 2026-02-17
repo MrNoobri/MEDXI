@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { healthMetricsAPI } from "../../api";
 
 const InsightsWidget = () => {
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading, error } = useQuery({
     queryKey: ["healthStats"],
     queryFn: async () => {
       const endDate = new Date();
@@ -16,7 +16,48 @@ const InsightsWidget = () => {
       });
       return response.data.data;
     },
+    retry: 1,
   });
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="card">
+        <h3 className="text-xl font-semibold mb-4 flex items-center">
+          <span className="mr-2">💡</span>
+          Health Insights
+        </h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error or default insights
+  if (error || !stats) {
+    return (
+      <div className="card">
+        <h3 className="text-xl font-semibold mb-4 flex items-center">
+          <span className="mr-2">💡</span>
+          Health Insights
+        </h3>
+        <div className="space-y-3">
+          <div className="p-3 rounded-lg border bg-blue-50 border-blue-200 text-blue-800">
+            <div className="flex items-start">
+              <span className="text-2xl mr-3">📊</span>
+              <div className="flex-1">
+                <h4 className="font-semibold text-sm mb-1">Start tracking</h4>
+                <p className="text-xs opacity-90">
+                  Add more health data to receive personalized insights!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const generateInsights = () => {
     if (!stats) return [];

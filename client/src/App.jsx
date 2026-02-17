@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Appointments from "./pages/Appointments";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
+import MyAccount from "./pages/MyAccount";
 import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
 
@@ -144,6 +145,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <MyAccount />
             </ProtectedRoute>
           }
         />
