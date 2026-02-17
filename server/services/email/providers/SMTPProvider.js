@@ -6,7 +6,7 @@ class SMTPProvider extends IEmailProvider {
     super();
     if (this.isConfigured()) {
       const emailMode = process.env.EMAIL_MODE || "maildev";
-      
+
       if (emailMode === "gmail") {
         // Gmail SMTP configuration
         this.transporter = nodemailer.createTransport({
@@ -33,9 +33,10 @@ class SMTPProvider extends IEmailProvider {
   async send({ to, subject, html, text, from }) {
     try {
       const emailMode = process.env.EMAIL_MODE || "maildev";
-      const fromEmail = emailMode === "gmail" 
-        ? process.env.GMAIL_USER 
-        : (from || process.env.SMTP_FROM_EMAIL || "noreply@medxi.local");
+      const fromEmail =
+        emailMode === "gmail"
+          ? process.env.GMAIL_USER
+          : from || process.env.SMTP_FROM_EMAIL || "noreply@medxi.local";
 
       const info = await this.transporter.sendMail({
         from: fromEmail,
@@ -61,7 +62,7 @@ class SMTPProvider extends IEmailProvider {
 
   isConfigured() {
     const emailMode = process.env.EMAIL_MODE || "maildev";
-    
+
     if (emailMode === "gmail") {
       // Gmail mode requires Gmail credentials
       return !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);

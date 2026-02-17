@@ -79,7 +79,7 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200">
+    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200 dark:border-gray-700">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-t-2xl flex justify-between items-center">
         <div className="flex items-center">
@@ -100,23 +100,23 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
         {messages.map((message, index) => (
           <div
             key={index}
             className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                 message.role === "user"
                   ? "bg-primary-600 text-white"
-                  : "bg-white text-gray-900 shadow-md border border-gray-100"
+                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-md border border-gray-200 dark:border-gray-700"
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
               <p
                 className={`text-xs mt-1 ${
-                  message.role === "user" ? "text-primary-100" : "text-gray-500"
+                  message.role === "user" ? "text-primary-100" : "text-gray-500 dark:text-gray-400"
                 }`}
               >
                 {new Date(message.timestamp).toLocaleTimeString([], {

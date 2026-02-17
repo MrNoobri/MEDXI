@@ -1,31 +1,52 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Button } from "../ui/shared/Button";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/shared/Card";
+import Navbar from "../components/common/Navbar";
 
 const Profile = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <h1 className="text-3xl font-bold mb-6">Profile</h1>
-      <div className="card max-w-2xl">
-        <h2 className="text-xl font-semibold mb-4">Account Information</h2>
-        <div className="space-y-3">
-          <div>
-            <span className="font-medium">Name:</span>{" "}
-            {user?.profile?.firstName} {user?.profile?.lastName}
-          </div>
-          <div>
-            <span className="font-medium">Email:</span> {user?.email}
-          </div>
-          <div>
-            <span className="font-medium">Role:</span> {user?.role}
-          </div>
-          <div>
-            <span className="font-medium">Phone:</span>{" "}
-            {user?.profile?.phone || "Not provided"}
-          </div>
-        </div>
-        <button className="btn btn-primary mt-6">Edit Profile</button>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8 text-gray-900">Profile</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>Account Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between py-3 border-b border-gray-200">
+                <span className="font-medium text-gray-600">Name:</span>
+                <span className="text-gray-900">{user?.profile?.firstName} {user?.profile?.lastName}</span>
+              </div>
+              <div className="flex justify-between py-3 border-b border-gray-200">
+                <span className="font-medium text-gray-600">Email:</span>
+                <span className="text-gray-900">{user?.email}</span>
+              </div>
+              <div className="flex justify-between py-3 border-b border-gray-200">
+                <span className="font-medium text-gray-600">Role:</span>
+                <span className="text-gray-900 capitalize">{user?.role}</span>
+              </div>
+              <div className="flex justify-between py-3 border-b border-gray-200">
+                <span className="font-medium text-gray-600">Phone:</span>
+                <span className="text-gray-900">{user?.profile?.phone || "Not provided"}</span>
+              </div>
+            </div>
+            <div className="mt-6 flex gap-4">
+              <Button onClick={() => navigate("/account")} className="flex-1">
+                Edit Profile
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/dashboard")} className="flex-1">
+                Back to Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
