@@ -1,64 +1,83 @@
 import React from "react";
+import { ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
 
 const MetricCard = ({ title, value, unit, status, icon, onClick, trend }) => {
-  const getStatusColor = () => {
-    if (status === "normal") return "border-success-500 bg-success-50 text-success-700";
-    if (status === "warning") return "border-warning-500 bg-warning-50 text-warning-700";
-    if (status === "critical") return "border-danger-500 bg-danger-50 text-danger-700";
-    return "border-gray-300 bg-gray-50 text-gray-600";
+  const getStatusStyles = () => {
+    switch (status) {
+      case "normal":
+        return {
+          indicator: "bg-emerald-500",
+          text: "text-emerald-700",
+          bg: "bg-emerald-50/50",
+          border: "border-emerald-100",
+          trend: "text-emerald-600",
+        };
+      case "warning":
+        return {
+          indicator: "bg-amber-500",
+          text: "text-amber-700",
+          bg: "bg-amber-50/50",
+          border: "border-amber-100",
+          trend: "text-amber-600",
+        };
+      case "critical":
+        return {
+          indicator: "bg-rose-500",
+          text: "text-rose-700",
+          bg: "bg-rose-50/50",
+          border: "border-rose-100",
+          trend: "text-rose-600",
+        };
+      default:
+        return {
+          indicator: "bg-slate-400",
+          text: "text-slate-600",
+          bg: "bg-slate-50/50",
+          border: "border-slate-100",
+          trend: "text-slate-500",
+        };
+    }
   };
 
-  const getIconBg = () => {
-    if (status === "normal") return "bg-success-100";
-    if (status === "warning") return "bg-warning-100";
-    if (status === "critical") return "bg-danger-100";
-    return "bg-gray-100";
-  };
-
-  const getStatusBadge = () => {
-    if (status === "normal") return "bg-success-100 text-success-800 border border-success-200";
-    if (status === "warning") return "bg-warning-100 text-warning-800 border border-warning-200";
-    if (status === "critical") return "bg-danger-100 text-danger-800 border border-danger-200";
-    return "bg-gray-100 text-gray-800 border border-gray-200";
-  };
+  const styles = getStatusStyles();
 
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-6 border-l-4 ${getStatusColor()} ${onClick ? "cursor-pointer" : ""}`}
+      className={`relative overflow-hidden rounded-2xl p-6 transition-all duration-300 ${onClick ? "cursor-pointer hover:shadow-lg hover:-translate-y-0.5" : ""
+        } bg-white border border-slate-100 shadow-sm group`}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
-          <div className="flex items-baseline space-x-2">
-            <p className="text-3xl font-bold text-gray-900">
-              {value !== null && value !== undefined ? value : "--"}
-            </p>
-            {unit && <p className="text-base text-gray-500 font-medium">{unit}</p>}
-          </div>
-          {trend && (
-            <p
-              className={`text-xs mt-2 font-medium ${trend > 0 ? "text-success-600" : "text-danger-600"}`}
-            >
-              {trend > 0 ? "↑" : "↓"} {Math.abs(trend)}% from last week
-            </p>
-          )}
+      {/* Decorative background visual */}
+      <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-5 ${styles.indicator.replace('bg-', 'bg-')}`} />
+
+      <div className="flex justify-between items-start mb-4">
+        <div className={`p-2.5 rounded-xl ${styles.bg}`}>
+          <span className="text-2xl">{icon || <Activity className="w-6 h-6 text-slate-400" />}</span>
         </div>
-        {icon && (
-          <div className={`p-3 rounded-lg ${getIconBg()}`}>
-            <span className="text-2xl">{icon}</span>
+        {status && (
+          <div className={`px-2.5 py-1 rounded-full text-xs font-medium border ${styles.bg} ${styles.border} ${styles.text} flex items-center gap-1.5`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${styles.indicator}`} />
+            {status.charAt(0).toUpperCase() + status.slice(1)}
           </div>
         )}
       </div>
-      {status && (
-        <div>
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge()}`}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+
+      <div>
+        <h3 className="text-sm font-medium text-slate-500 mb-1">{title}</h3>
+        <div className="flex items-baseline gap-2">
+          <span className="text-3xl font-bold text-slate-900 tracking-tight">
+            {value !== null && value !== undefined ? value : "--"}
           </span>
+          {unit && <span className="text-sm font-medium text-slate-400">{unit}</span>}
         </div>
-      )}
+
+        {trend !== undefined && trend !== null && (
+          <div className={`flex items-center mt-3 text-xs font-medium ${trend > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {trend > 0 ? <ArrowUpRight className="w-3.5 h-3.5 mr-1" /> : <ArrowDownRight className="w-3.5 h-3.5 mr-1" />}
+            {Math.abs(trend)}% vs last week
+          </div>
+        )}
+      </div>
     </div>
   );
 };

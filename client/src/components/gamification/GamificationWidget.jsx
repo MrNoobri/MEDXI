@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import api from "../../api/axios";
 
 const GamificationWidget = () => {
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading } = useQuery({
     queryKey: ["userStats"],
     queryFn: async () => {
       const response = await api.get("/gamification/stats");
@@ -10,7 +10,21 @@ const GamificationWidget = () => {
     },
   });
 
-  if (!stats) return null;
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg p-6 shadow-md border border-slate-100 animate-pulse">
+        <div className="h-6 w-1/3 bg-slate-200 rounded mb-4"></div>
+        <div className="h-4 w-1/2 bg-slate-100 rounded mb-6"></div>
+        <div className="h-16 w-16 bg-slate-200 rounded-full mx-auto mb-2"></div>
+      </div>
+    );
+  }
+
+  if (!stats) return (
+    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-6 shadow-md text-center">
+      <p className="text-slate-500">Gamification data unavailable.</p>
+    </div>
+  );
 
   const getProgressPercentage = (current, target) => {
     return Math.min(100, (current / target) * 100);

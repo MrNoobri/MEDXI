@@ -161,6 +161,7 @@ export default function MyAccount({ user }) {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
               {/* Avatar Upload */}
               <div className="flex flex-col items-center gap-4">
                 <div className="relative">
@@ -194,20 +195,14 @@ export default function MyAccount({ user }) {
               {/* Name Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">First Name</Label>
                   <Input
                     id="firstName"
                     {...register("firstName")}
                     aria-invalid={errors.firstName ? "true" : "false"}
-                    aria-describedby={
-                      errors.firstName ? "firstName-error" : undefined
-                    }
                   />
                   {errors.firstName && (
-                    <p
-                      id="firstName-error"
-                      className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
-                    >
+                    <p className="text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="w-4 h-4" />
                       {errors.firstName.message}
                     </p>
@@ -215,20 +210,14 @@ export default function MyAccount({ user }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">Last Name</Label>
                   <Input
                     id="lastName"
                     {...register("lastName")}
                     aria-invalid={errors.lastName ? "true" : "false"}
-                    aria-describedby={
-                      errors.lastName ? "lastName-error" : undefined
-                    }
                   />
                   {errors.lastName && (
-                    <p
-                      id="lastName-error"
-                      className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
-                    >
+                    <p className="text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="w-4 h-4" />
                       {errors.lastName.message}
                     </p>
@@ -238,7 +227,7 @@ export default function MyAccount({ user }) {
 
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
+                <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
@@ -247,14 +236,10 @@ export default function MyAccount({ user }) {
                     className="pl-10"
                     {...register("email")}
                     aria-invalid={errors.email ? "true" : "false"}
-                    aria-describedby={errors.email ? "email-error" : undefined}
                   />
                 </div>
                 {errors.email && (
-                  <p
-                    id="email-error"
-                    className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
-                  >
+                  <p className="text-sm text-red-600 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.email.message}
                   </p>
@@ -273,14 +258,10 @@ export default function MyAccount({ user }) {
                     placeholder="+1 (555) 123-4567"
                     {...register("phone")}
                     aria-invalid={errors.phone ? "true" : "false"}
-                    aria-describedby={errors.phone ? "phone-error" : undefined}
                   />
                 </div>
                 {errors.phone && (
-                  <p
-                    id="phone-error"
-                    className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
-                  >
+                  <p className="text-sm text-red-600 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.phone.message}
                   </p>

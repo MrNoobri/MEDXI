@@ -16,7 +16,12 @@ const useNotifications = () => {
       const response = await alertsAPI.getUnreadCount();
       setUnreadCount(response.data.data.count || 0);
     } catch (error) {
-      // Silent fail for polling
+      if (error.response?.status === 401) {
+        // Token invalid, clear it to stop polling
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+      }
     }
   };
 
@@ -53,8 +58,8 @@ const useNotifications = () => {
     const socket = io(socketUrl, {
       path: "/ws",
       auth: { token },
-      transports: ["websocket"],
-      reconnectionAttempts: 3,
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 5,
     });
 
     socketRef.current = socket;

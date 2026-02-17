@@ -12,14 +12,18 @@ import RecipesWidget from "../components/dashboard/RecipesWidget";
 import WearableDevices from "../components/wearables/WearableDevices";
 import GoogleFitConnect from "../components/GoogleFitConnect";
 import GamificationWidget from "../components/gamification/GamificationWidget";
+import ActionCard from "../components/dashboard/ActionCard";
 import { healthMetricsAPI, alertsAPI } from "../api";
 
 const PatientDashboard = () => {
   const { user } = useAuth();
+  const [chartRange, setChartRange] = useState("7d");
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState(null);
   const [showChatbot, setShowChatbot] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Simulator state
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulatorData, setSimulatorData] = useState({
     heartRate: null,
@@ -50,12 +54,15 @@ const PatientDashboard = () => {
 
   // Fetch metric history when a metric is selected
   const { data: metricHistory } = useQuery({
-    queryKey: ["metricHistory", selectedMetric],
+    queryKey: ["metricHistory", selectedMetric, chartRange],
     queryFn: async () => {
       if (!selectedMetric) return null;
       const endDate = new Date();
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 7);
+
+      if (chartRange === "1d") startDate.setDate(startDate.getDate() - 1);
+      else if (chartRange === "30d") startDate.setDate(startDate.getDate() - 30);
+      else startDate.setDate(startDate.getDate() - 7); // Default 7d
 
       const response = await healthMetricsAPI.getAll({
         metricType: selectedMetric,
@@ -180,20 +187,27 @@ const PatientDashboard = () => {
           },
           {
             metricType: "bloodPressure",
-            value: bp,
+            value: bp, // This is an object { systolic, diastolic }
             unit: "mmHg",
             source: "simulator",
           },
           {
             metricType: "steps",
-            value: simulatorData.steps + newSteps,
+            value: newSteps, // Increment only
             unit: "steps",
             source: "simulator",
           },
         ];
 
+        // Process metrics sequentially to avoid flooding
         for (const metric of metrics) {
-          await healthMetricsAPI.create(metric);
+          try {
+            // Ensure value is valid
+            if (!metric.value) continue;
+            await healthMetricsAPI.create(metric);
+          } catch (err) {
+            console.error(`Failed to simulate ${metric.metricType}:`, err);
+          }
         }
 
         // Refetch the latest metrics to update the dashboard
@@ -232,47 +246,57 @@ const PatientDashboard = () => {
     });
   };
 
+  const metricLabels = {
+    heartRate: "Heart Rate",
+    bloodPressure: "Blood Pressure",
+    oxygenSaturation: "Oxygen Level",
+    steps: "Steps",
+    sleep: "Sleep",
+    bloodGlucose: "Blood Glucose",
+    calories: "Calories",
+    distance: "Distance",
+    weight: "Weight",
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50/50">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4 animate-fade-in-up">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              Welcome back, {user?.profile?.firstName}!
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+              Hello, {user?.profile?.firstName}!
             </h2>
-            <p className="text-gray-600 mt-1">Here's your health overview</p>
+            <p className="text-slate-500 mt-1">Here's your daily health overview.</p>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="btn btn-primary"
+            className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-xl text-white bg-primary-600 hover:bg-primary-700 shadow-sm hover:shadow-md transition-all duration-200"
           >
             + Track Health Data
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
+        <div className="mb-8 border-b border-slate-200">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`${
-                activeTab === "overview"
-                  ? "border-primary-600 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              className={`${activeTab === "overview"
+                ? "border-primary-500 text-primary-600"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               📊 Overview
             </button>
             <button
               onClick={() => setActiveTab("wearables")}
-              className={`${
-                activeTab === "wearables"
-                  ? "border-primary-600 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              className={`${activeTab === "wearables"
+                ? "border-primary-500 text-primary-600"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               ⌚ Wearable Devices
             </button>
@@ -281,53 +305,41 @@ const PatientDashboard = () => {
 
         {/* Tab Content */}
         {activeTab === "overview" && (
-          <div>
+          <div className="space-y-8 animate-fade-in-up">
             {/* Alerts Section */}
             {alertsData && alertsData.length > 0 && (
-              <div className="mb-6">
-                <div className="bg-warning-100 border-l-4 border-warning-500 p-4 rounded-lg shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-warning-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                        <p className="font-semibold text-warning-800">
-                          You have {alertsData.length} active alert{alertsData.length !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                      <p className="text-sm text-gray-700 mt-2 ml-7">
-                        {alertsData[0]?.message}
+              <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-600">
+                        ⚠️
+                      </span>
+                      <p className="font-semibold text-amber-800">
+                        You have {alertsData.length} active alert{alertsData.length !== 1 ? 's' : ''}
                       </p>
                     </div>
-                    <button 
-                      onClick={() => window.location.href = '/alerts'}
-                      className="ml-4 px-4 py-2 bg-white border border-warning-300 text-warning-700 rounded-lg hover:bg-warning-50 transition-colors text-sm font-medium"
-                    >
-                      View All
-                    </button>
+                    <p className="text-sm text-amber-700 mt-1 ml-8">
+                      {alertsData[0]?.message}
+                    </p>
                   </div>
+                  <button
+                    onClick={() => window.location.href = '/alerts'}
+                    className="ml-4 px-4 py-2 bg-white border border-amber-200 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors text-sm font-medium"
+                  >
+                    View All
+                  </button>
                 </div>
               </div>
             )}
 
             {/* Health Metrics Grid */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-4">
                 Your Health Metrics
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Object.entries({
-                  heartRate: "Heart Rate",
-                  bloodPressure: "Blood Pressure",
-                  oxygenSaturation: "Oxygen Level",
-                  steps: "Steps",
-                  sleep: "Sleep",
-                  bloodGlucose: "Blood Glucose",
-                  calories: "Calories",
-                  distance: "Distance",
-                  weight: "Weight",
-                }).map(([key, label]) => {
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Object.entries(metricLabels).map(([key, label]) => {
                   const metric = latestMetrics?.[key];
                   return (
                     <MetricCard
@@ -347,68 +359,55 @@ const PatientDashboard = () => {
             </div>
 
             {/* Chart Section */}
-            {selectedMetric && metricHistory && metricHistory.length > 0 && (
-              <div className="mb-8">
-                <div className="card">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900">
-                      {selectedMetric.replace(/([A-Z])/g, " $1").trim()} - Last
-                      7 Days
-                    </h3>
-                    <button
-                      onClick={() => setSelectedMetric(null)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      Close
-                    </button>
-                  </div>
-                  <MetricChart
-                    data={metricHistory}
-                    metricType={selectedMetric}
-                  />
+            {selectedMetric && (
+              <div className="animate-fade-in-up">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-slate-900">
+                    {metricLabels[selectedMetric]} Analysis
+                  </h3>
+                  <button
+                    onClick={() => setSelectedMetric(null)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    ✕ Close Chart
+                  </button>
                 </div>
+                <MetricChart
+                  data={metricHistory}
+                  metricType={selectedMetric}
+                  onRangeChange={setChartRange}
+                />
               </div>
             )}
 
             {/* Quick Actions & Gamification Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="card hover:shadow-lg transition-shadow cursor-pointer">
-                  <h3 className="text-lg font-semibold mb-2">
-                    📅 Appointments
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Book or manage your appointments
-                  </p>
-                  <button className="btn btn-primary w-full">
-                    View Appointments
-                  </button>
-                </div>
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <ActionCard
+                  title="Appointments"
+                  description="Book or manage your appointments"
+                  icon="📅"
+                  buttonText="View Appointments"
+                  onClick={() => console.log("Navigate to Appointments")}
+                />
 
-                <div className="card hover:shadow-lg transition-shadow cursor-pointer">
-                  <h3 className="text-lg font-semibold mb-2">💬 Messages</h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Chat with your healthcare provider
-                  </p>
-                  <button className="btn btn-primary w-full">
-                    View Messages
-                  </button>
-                </div>
+                <ActionCard
+                  title="Messages"
+                  description="Chat with your healthcare provider"
+                  icon="💬"
+                  buttonText="View Messages"
+                  onClick={() => console.log("Navigate to Messages")}
+                  variant="secondary"
+                />
 
-                <div
-                  className="card hover:shadow-lg transition-shadow cursor-pointer"
+                <ActionCard
+                  title="AI Assistant"
+                  description="Get instant health guidance"
+                  icon="🤖"
+                  buttonText="Ask MEDXI AI"
                   onClick={() => setShowChatbot(true)}
-                >
-                  <h3 className="text-lg font-semibold mb-2">
-                    🤖 AI Assistant
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Get instant health guidance
-                  </p>
-                  <button className="btn btn-primary w-full">
-                    Ask MEDXI AI
-                  </button>
-                </div>
+                  variant="accent"
+                />
               </div>
 
               {/* Gamification Widget */}
