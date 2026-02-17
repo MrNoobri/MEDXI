@@ -122,10 +122,16 @@ const acknowledgeAlert = async (req, res) => {
       });
     }
 
-    if (req.user.role !== "provider" && req.user.role !== "admin") {
+    // Authorization check
+    const isAuthorized =
+      req.user.role === "admin" ||
+      req.user.role === "provider" ||
+      alert.userId.toString() === req.user._id.toString();
+
+    if (!isAuthorized) {
       return res.status(403).json({
         success: false,
-        message: "Only healthcare providers can acknowledge alerts",
+        message: "Access denied",
       });
     }
 
