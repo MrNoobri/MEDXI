@@ -3,7 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { healthMetricsAPI } from "../../api";
 
 const InsightsWidget = () => {
-  const { data: stats, isLoading, error } = useQuery({
+  const {
+    data: stats,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["healthStats"],
     queryFn: async () => {
       const endDate = new Date();

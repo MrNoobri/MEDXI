@@ -22,7 +22,9 @@ const Profile = () => {
             <div className="space-y-4">
               <div className="flex justify-between py-3 border-b border-gray-200">
                 <span className="font-medium text-gray-600">Name:</span>
-                <span className="text-gray-900">{user?.profile?.firstName} {user?.profile?.lastName}</span>
+                <span className="text-gray-900">
+                  {user?.profile?.firstName} {user?.profile?.lastName}
+                </span>
               </div>
               <div className="flex justify-between py-3 border-b border-gray-200">
                 <span className="font-medium text-gray-600">Email:</span>
@@ -34,14 +36,20 @@ const Profile = () => {
               </div>
               <div className="flex justify-between py-3 border-b border-gray-200">
                 <span className="font-medium text-gray-600">Phone:</span>
-                <span className="text-gray-900">{user?.profile?.phone || "Not provided"}</span>
+                <span className="text-gray-900">
+                  {user?.profile?.phone || "Not provided"}
+                </span>
               </div>
             </div>
             <div className="mt-6 flex gap-4">
               <Button onClick={() => navigate("/account")} className="flex-1">
                 Edit Profile
               </Button>
-              <Button variant="outline" onClick={() => navigate("/dashboard")} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+                className="flex-1"
+              >
                 Back to Dashboard
               </Button>
             </div>

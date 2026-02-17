@@ -113,10 +113,14 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
                   : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-md border border-gray-200 dark:border-gray-700"
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                {message.content}
+              </p>
               <p
                 className={`text-xs mt-1 ${
-                  message.role === "user" ? "text-primary-100" : "text-gray-500 dark:text-gray-400"
+                  message.role === "user"
+                    ? "text-primary-100"
+                    : "text-gray-500 dark:text-gray-400"
                 }`}
               >
                 {new Date(message.timestamp).toLocaleTimeString([], {

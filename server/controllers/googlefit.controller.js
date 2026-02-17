@@ -215,7 +215,7 @@ async function syncGoogleFitData(userId) {
     });
 
     // Handle token refresh on API calls
-    userOAuth2Client.on('tokens', async (tokens) => {
+    userOAuth2Client.on("tokens", async (tokens) => {
       if (tokens.refresh_token) {
         // Update refresh token if we got a new one
         user.googleFitTokens.refreshToken = tokens.refresh_token;
@@ -704,18 +704,26 @@ async function syncGoogleFitData(userId) {
     console.log(`  Metrics processed:`, metricsProcessed);
   } catch (error) {
     console.error("Error in syncGoogleFitData:", error.message);
-    
+
     // Handle invalid_grant error (expired/revoked tokens)
-    if (error.message && (error.message.includes('invalid_grant') || error.message.includes('invalid_client'))) {
-      console.log(`⚠️ Google Fit tokens expired for user ${userId}. User needs to reconnect.`);
-      
+    if (
+      error.message &&
+      (error.message.includes("invalid_grant") ||
+        error.message.includes("invalid_client"))
+    ) {
+      console.log(
+        `⚠️ Google Fit tokens expired for user ${userId}. User needs to reconnect.`,
+      );
+
       // Disconnect Google Fit for this user
       const user = await User.findById(userId);
       if (user) {
         user.googleFitConnected = false;
         user.googleFitTokens = null;
         await user.save();
-        console.log(`✓ Google Fit disconnected for user ${userId} due to invalid tokens`);
+        console.log(
+          `✓ Google Fit disconnected for user ${userId} due to invalid tokens`,
+        );
       }
     }
   }

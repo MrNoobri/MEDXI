@@ -61,7 +61,8 @@ const PatientDashboard = () => {
       const startDate = new Date();
 
       if (chartRange === "1d") startDate.setDate(startDate.getDate() - 1);
-      else if (chartRange === "30d") startDate.setDate(startDate.getDate() - 30);
+      else if (chartRange === "30d")
+        startDate.setDate(startDate.getDate() - 30);
       else startDate.setDate(startDate.getDate() - 7); // Default 7d
 
       const response = await healthMetricsAPI.getAll({
@@ -269,7 +270,9 @@ const PatientDashboard = () => {
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
               Hello, {user?.profile?.firstName}!
             </h2>
-            <p className="text-slate-500 mt-1">Here's your daily health overview.</p>
+            <p className="text-slate-500 mt-1">
+              Here's your daily health overview.
+            </p>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
@@ -284,19 +287,21 @@ const PatientDashboard = () => {
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`${activeTab === "overview"
-                ? "border-primary-500 text-primary-600"
-                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              className={`${
+                activeTab === "overview"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               📊 Overview
             </button>
             <button
               onClick={() => setActiveTab("wearables")}
-              className={`${activeTab === "wearables"
-                ? "border-primary-500 text-primary-600"
-                : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              className={`${
+                activeTab === "wearables"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               ⌚ Wearable Devices
             </button>
@@ -316,7 +321,8 @@ const PatientDashboard = () => {
                         ⚠️
                       </span>
                       <p className="font-semibold text-amber-800">
-                        You have {alertsData.length} active alert{alertsData.length !== 1 ? 's' : ''}
+                        You have {alertsData.length} active alert
+                        {alertsData.length !== 1 ? "s" : ""}
                       </p>
                     </div>
                     <p className="text-sm text-amber-700 mt-1 ml-8">
@@ -324,7 +330,7 @@ const PatientDashboard = () => {
                     </p>
                   </div>
                   <button
-                    onClick={() => window.location.href = '/alerts'}
+                    onClick={() => (window.location.href = "/alerts")}
                     className="ml-4 px-4 py-2 bg-white border border-amber-200 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors text-sm font-medium"
                   >
                     View All
