@@ -36,23 +36,23 @@ const ConversationList = ({
             <div
               key={conversation._id}
               onClick={() => onSelectConversation(conversation)}
-              className={`p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ${
-                isSelected ? "bg-primary-50" : ""
+              className={`p-4 border-b border-border cursor-pointer hover:bg-secondary/30 transition-colors ${
+                isSelected ? "bg-primary/15" : ""
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center mb-1">
-                    <div className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold mr-3">
+                    <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold mr-3">
                       {otherUser?.profile?.firstName?.[0]}
                       {otherUser?.profile?.lastName?.[0]}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-gray-900 truncate">
+                      <h3 className="text-sm font-semibold text-foreground truncate">
                         {otherUser?.profile?.firstName}{" "}
                         {otherUser?.profile?.lastName}
                       </h3>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-muted-foreground">
                         {otherUser?.role === "provider"
                           ? otherUser?.profile?.specialization ||
                             "Healthcare Provider"
@@ -61,20 +61,20 @@ const ConversationList = ({
                     </div>
                   </div>
                   {conversation.lastMessage && (
-                    <p className="text-sm text-gray-600 truncate ml-13">
+                    <p className="text-sm text-muted-foreground truncate ml-13">
                       {conversation.lastMessage.content}
                     </p>
                   )}
                 </div>
                 {conversation.lastMessage && (
                   <div className="ml-2 flex flex-col items-end">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       {formatLastMessageTime(
                         conversation.lastMessage.createdAt,
                       )}
                     </span>
                     {conversation.unreadCount > 0 && (
-                      <span className="mt-1 bg-primary-600 text-white text-xs rounded-full px-2 py-0.5">
+                      <span className="mt-1 bg-primary text-primary-foreground text-xs rounded-full px-2 py-0.5">
                         {conversation.unreadCount}
                       </span>
                     )}
@@ -85,7 +85,7 @@ const ConversationList = ({
           );
         })
       ) : (
-        <div className="flex items-center justify-center h-full text-gray-500 p-4 text-center">
+        <div className="flex items-center justify-center h-full text-muted-foreground p-4 text-center">
           No conversations yet. Start by booking an appointment with a
           healthcare provider.
         </div>

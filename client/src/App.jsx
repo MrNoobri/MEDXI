@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
 // Pages
@@ -39,6 +39,12 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 // Public Route Component (redirect if logged in)
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
+
+  const isRegisterPasswordSetupFlow =
+    location.pathname === "/register" &&
+    (new URLSearchParams(location.search).get("oauth") === "needs_password" ||
+      sessionStorage.getItem("googlePasswordSetupPending") === "1");
 
   if (loading) {
     return (
@@ -48,7 +54,7 @@ const PublicRoute = ({ children }) => {
     );
   }
 
-  if (user) {
+  if (user && !isRegisterPasswordSetupFlow) {
     // Redirect based on role
     const dashboardMap = {
       patient: "/dashboard",

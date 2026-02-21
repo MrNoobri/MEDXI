@@ -3,10 +3,10 @@ import { format } from "date-fns";
 
 const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
   const statusColors = {
-    scheduled: "bg-blue-100 text-blue-800",
-    completed: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800",
-    rescheduled: "bg-yellow-100 text-yellow-800",
+    scheduled: "bg-primary/15 text-primary border border-primary/25",
+    completed: "bg-success-light text-success-dark border border-success/30",
+    cancelled: "bg-danger-light text-danger-dark border border-danger/30",
+    rescheduled: "bg-warning-light text-warning-dark border border-warning/30",
   };
 
   const formatDateTime = (date, time) => {
@@ -24,21 +24,22 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
   const { date, time } = formatDateTime(appointment.date, appointment.time);
 
   return (
-    <div className="card hover:shadow-lg transition-shadow">
+    <div className="card hover:shadow-lg transition-shadow theme-surface">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-foreground">
             {appointment.provider?.profile?.firstName}{" "}
             {appointment.provider?.profile?.lastName}
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             {appointment.provider?.profile?.specialization ||
               "Healthcare Provider"}
           </p>
         </div>
         <span
           className={`px-3 py-1 rounded-full text-xs font-medium ${
-            statusColors[appointment.status] || "bg-gray-100 text-gray-800"
+            statusColors[appointment.status] ||
+            "bg-secondary text-secondary-foreground"
           }`}
         >
           {appointment.status}
@@ -46,22 +47,22 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
       </div>
 
       <div className="space-y-2 mb-4">
-        <div className="flex items-center text-gray-700">
+        <div className="flex items-center text-foreground/90">
           <span className="mr-2">📅</span>
           <span>{date}</span>
         </div>
-        <div className="flex items-center text-gray-700">
+        <div className="flex items-center text-foreground/90">
           <span className="mr-2">🕐</span>
           <span>{time}</span>
         </div>
         {appointment.reason && (
-          <div className="flex items-start text-gray-700">
+          <div className="flex items-start text-foreground/90">
             <span className="mr-2">📋</span>
             <span className="text-sm">{appointment.reason}</span>
           </div>
         )}
         {appointment.notes && (
-          <div className="flex items-start text-gray-700 mt-2">
+          <div className="flex items-start text-foreground/80 mt-2">
             <span className="mr-2">📝</span>
             <span className="text-sm italic">{appointment.notes}</span>
           </div>
@@ -81,7 +82,7 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
           {onCancel && (
             <button
               onClick={() => onCancel(appointment._id)}
-              className="btn bg-red-500 text-white hover:bg-red-600 flex-1"
+              className="btn bg-danger text-white hover:bg-danger-dark flex-1"
             >
               Cancel
             </button>

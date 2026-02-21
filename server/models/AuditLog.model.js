@@ -18,8 +18,10 @@ const auditLogSchema = new mongoose.Schema(
       required: true,
       enum: [
         "login",
+        "login-google",
         "logout",
         "register",
+        "password-set",
         "view-patient-data",
         "edit-patient-data",
         "create-appointment",

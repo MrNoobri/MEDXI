@@ -5,6 +5,8 @@ export const authAPI = {
   register: (data) => api.post("/auth/register", data),
   login: (data) => api.post("/auth/login", data),
   logout: () => api.post("/auth/logout"),
+  setPassword: (data) => api.post("/auth/set-password", data),
+  updatePreferences: (data) => api.patch("/auth/preferences", data),
   getCurrentUser: () => api.get("/auth/me"),
   refreshToken: (refreshToken) => api.post("/auth/refresh", { refreshToken }),
   getProviders: () => api.get("/auth/providers"),
@@ -56,4 +58,12 @@ export const messagesAPI = {
 export const chatbotAPI = {
   sendMessage: (data) => api.post("/chatbot/message", data),
   getSuggestions: () => api.get("/chatbot/suggestions"),
+};
+
+// Google Fit APIs
+export const googleFitAPI = {
+  getStatus: () => api.get("/googlefit/status"),
+  getAuthUrl: () => api.get("/googlefit/auth"),
+  sync: () => api.post("/googlefit/sync"),
+  disconnect: () => api.post("/googlefit/disconnect"),
 };

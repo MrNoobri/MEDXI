@@ -46,8 +46,8 @@ const MessageThread = ({ messages, onSendMessage }) => {
                 <div
                   className={`max-w-[70%] rounded-lg px-4 py-2 ${
                     isOwn
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-200 text-gray-900"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary/55 text-foreground border border-border"
                   }`}
                 >
                   {!isOwn && (
@@ -59,7 +59,9 @@ const MessageThread = ({ messages, onSendMessage }) => {
                   <p className="text-sm">{message.content}</p>
                   <p
                     className={`text-xs mt-1 ${
-                      isOwn ? "text-primary-100" : "text-gray-600"
+                      isOwn
+                        ? "text-primary-foreground/75"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {formatMessageTime(message.createdAt)}
@@ -69,7 +71,7 @@ const MessageThread = ({ messages, onSendMessage }) => {
             );
           })
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="flex items-center justify-center h-full text-muted-foreground">
             No messages yet. Start the conversation!
           </div>
         )}
@@ -77,14 +79,14 @@ const MessageThread = ({ messages, onSendMessage }) => {
       </div>
 
       {/* Message Input */}
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t border-border p-4 bg-card">
         <form onSubmit={handleSend} className="flex space-x-2">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-transparent"
           />
           <button
             type="submit"

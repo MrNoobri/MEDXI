@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { chatbotAPI } from "../../api";
+import { useTheme } from "../../context/ThemeContext";
 
 const ChatbotWidget = ({ isOpen, onClose }) => {
+  const { theme } = useTheme();
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -78,29 +80,39 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const headerClassByTheme = {
+    medical: "from-primary to-secondary",
+    midnight: "from-primary to-secondary",
+    emerald: "from-primary to-secondary",
+  };
+
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200">
+    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-card rounded-2xl shadow-2xl flex flex-col z-50 border border-border overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-t-2xl flex justify-between items-center">
+      <div
+        className={`bg-gradient-to-r ${headerClassByTheme[theme] || "from-primary to-secondary"} text-primary-foreground p-4 rounded-t-2xl flex justify-between items-center`}
+      >
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
+          <div className="w-10 h-10 bg-background/90 rounded-full flex items-center justify-center mr-3 border border-border/70">
             <span className="text-2xl">🤖</span>
           </div>
           <div>
             <h3 className="font-semibold">AI Health Assistant</h3>
-            <p className="text-xs text-primary-100">Always here to help</p>
+            <p className="text-xs text-primary-foreground/80">
+              Always here to help
+            </p>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="text-white hover:text-gray-200 text-2xl"
+          className="text-primary-foreground hover:text-primary-foreground/70 text-2xl"
         >
           ×
         </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -109,14 +121,16 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                 message.role === "user"
-                  ? "bg-primary-600 text-white"
-                  : "bg-white text-gray-900 shadow-md border border-gray-100"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-foreground shadow-md border border-border"
               }`}
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               <p
                 className={`text-xs mt-1 ${
-                  message.role === "user" ? "text-primary-100" : "text-gray-500"
+                  message.role === "user"
+                    ? "text-primary-foreground/75"
+                    : "text-muted-foreground"
                 }`}
               >
                 {new Date(message.timestamp).toLocaleTimeString([], {
@@ -129,15 +143,15 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
         ))}
         {sendMessageMutation.isPending && (
           <div className="flex justify-start">
-            <div className="bg-white text-gray-900 shadow-md border border-gray-100 rounded-2xl px-4 py-2">
+            <div className="bg-card text-foreground shadow-md border border-border rounded-2xl px-4 py-2">
               <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                 <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
                   style={{ animationDelay: "0.1s" }}
                 ></div>
                 <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
                   style={{ animationDelay: "0.2s" }}
                 ></div>
               </div>
@@ -150,7 +164,7 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
       {/* Quick Questions */}
       {messages.length === 1 && (
         <div className="px-4 pb-2">
-          <p className="text-xs text-gray-600 mb-2">Quick questions:</p>
+          <p className="text-xs text-muted-foreground mb-2">Quick questions:</p>
           <div className="flex flex-wrap gap-2">
             {quickQuestions.map((question, index) => (
               <button
@@ -158,7 +172,7 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
                 onClick={() => {
                   setInput(question);
                 }}
-                className="text-xs bg-primary-50 text-primary-700 px-3 py-1 rounded-full hover:bg-primary-100 transition-colors"
+                className="text-xs bg-secondary/35 text-foreground px-3 py-1 rounded-full border border-border hover:bg-secondary/50 transition-colors"
               >
                 {question}
               </button>
@@ -168,20 +182,20 @@ const ChatbotWidget = ({ isOpen, onClose }) => {
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-200 bg-white rounded-b-2xl">
+      <div className="p-4 border-t border-border bg-card rounded-b-2xl">
         <form onSubmit={handleSend} className="flex space-x-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask me anything about health..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="flex-1 px-4 py-2 border border-input rounded-full bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
             disabled={sendMessageMutation.isPending}
           />
           <button
             type="submit"
             disabled={!input.trim() || sendMessageMutation.isPending}
-            className="bg-primary-600 text-white p-2 rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-primary text-primary-foreground p-2 rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <svg
               className="w-5 h-5"

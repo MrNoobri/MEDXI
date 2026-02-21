@@ -46,25 +46,25 @@ const WearableDevices = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg p-6 text-white">
+      <div className="bg-gradient-to-r from-primary to-secondary rounded-xl p-6 text-primary-foreground shadow-sm border border-border/40">
         <h2 className="text-2xl font-bold mb-2">Wearable Devices</h2>
-        <p className="text-primary-100">
+        <p className="text-primary-foreground/85">
           Connect your wearable devices to automatically track your health
           metrics
         </p>
       </div>
 
       {/* Simulator Control */}
-      <div className="bg-white rounded-lg shadow-md p-6 border-2 border-primary-200">
+      <div className="bg-card rounded-xl shadow-md p-6 border border-border theme-surface">
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-4xl">🤖</span>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-foreground">
                   Demo Data Simulator
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Simulates real-time health data from a wearable device
                 </p>
               </div>
@@ -74,8 +74,8 @@ const WearableDevices = ({
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                 isSimulating
-                  ? "bg-green-100 text-green-800"
-                  : "bg-gray-100 text-gray-800"
+                  ? "bg-success-light text-success-dark"
+                  : "bg-secondary text-secondary-foreground"
               }`}
             >
               {isSimulating ? "● Active" : "○ Inactive"}
@@ -85,39 +85,39 @@ const WearableDevices = ({
 
         {/* Simulator Metrics Display */}
         {isSimulating && simulatorData.lastUpdate && (
-          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+          <div className="mb-4 p-4 bg-secondary/30 border border-border rounded-xl">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
               <div className="text-center">
                 <div className="text-2xl mb-1">💓</div>
-                <div className="text-2xl font-bold text-primary-600">
+                <div className="text-2xl font-bold text-primary">
                   {simulatorData.heartRate}
                 </div>
-                <div className="text-xs text-gray-600">bpm</div>
+                <div className="text-xs text-muted-foreground">bpm</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl mb-1">👣</div>
-                <div className="text-2xl font-bold text-primary-600">
+                <div className="text-2xl font-bold text-primary">
                   {simulatorData.steps}
                 </div>
-                <div className="text-xs text-gray-600">steps</div>
+                <div className="text-xs text-muted-foreground">steps</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl mb-1">🫁</div>
-                <div className="text-2xl font-bold text-primary-600">
+                <div className="text-2xl font-bold text-primary">
                   {simulatorData.spo2}%
                 </div>
-                <div className="text-xs text-gray-600">SpO2</div>
+                <div className="text-xs text-muted-foreground">SpO2</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl mb-1">🩺</div>
-                <div className="text-2xl font-bold text-primary-600">
+                <div className="text-2xl font-bold text-primary">
                   {simulatorData.bloodPressure?.systolic}/
                   {simulatorData.bloodPressure?.diastolic}
                 </div>
-                <div className="text-xs text-gray-600">mmHg</div>
+                <div className="text-xs text-muted-foreground">mmHg</div>
               </div>
             </div>
-            <div className="text-xs text-center text-gray-500">
+            <div className="text-xs text-center text-muted-foreground">
               Last update: {formatTime(simulatorData.lastUpdate)}
             </div>
           </div>
@@ -128,7 +128,7 @@ const WearableDevices = ({
           {!isSimulating ? (
             <button
               onClick={onStartSimulator}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              className="flex-1 bg-success hover:bg-success-dark text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
             >
               <span>▶</span>
               Start Simulator
@@ -136,7 +136,7 @@ const WearableDevices = ({
           ) : (
             <button
               onClick={onStopSimulator}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              className="flex-1 bg-danger hover:bg-danger-dark text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
             >
               <span>⏹</span>
               Stop Simulator
@@ -145,8 +145,8 @@ const WearableDevices = ({
         </div>
 
         {isSimulating && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
+            <p className="text-sm text-primary">
               <strong>Simulator Active:</strong> Your dashboard will update with
               new health metrics every 30 seconds. This data is automatically
               saved to your health history.
@@ -157,7 +157,7 @@ const WearableDevices = ({
 
       {/* Other Devices */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-foreground mb-4">
           Available Devices
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -166,27 +166,27 @@ const WearableDevices = ({
             .map((device) => (
               <div
                 key={device.id}
-                className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
+                className="bg-card rounded-lg shadow-md p-6 border border-border theme-surface"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span className="text-3xl">{device.icon}</span>
                     <div>
-                      <h4 className="font-semibold text-gray-900">
+                      <h4 className="font-semibold text-foreground">
                         {device.name}
                       </h4>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {device.type.replace("-", " ")}
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
                     Not connected
                   </span>
                 </div>
                 <button
                   disabled
-                  className="w-full bg-gray-300 text-gray-500 font-medium py-2 px-4 rounded-lg cursor-not-allowed"
+                  className="w-full bg-secondary/70 text-muted-foreground font-medium py-2 px-4 rounded-lg cursor-not-allowed border border-border"
                 >
                   Connect (Coming Soon)
                 </button>
@@ -196,9 +196,9 @@ const WearableDevices = ({
       </div>
 
       {/* Info Section */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-semibold text-blue-900 mb-2">💡 How it works</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
+      <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+        <h4 className="font-semibold text-primary mb-2">💡 How it works</h4>
+        <ul className="text-sm text-foreground/90 space-y-1">
           <li>
             • <strong>Demo Simulator:</strong> Click "Start Simulator" to
             generate realistic health data

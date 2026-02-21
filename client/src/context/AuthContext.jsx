@@ -63,6 +63,18 @@ export const AuthProvider = ({ children }) => {
     return user;
   };
 
+  const completeOAuthLogin = async ({ accessToken, refreshToken }) => {
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+
+    const response = await authAPI.getCurrentUser();
+    const currentUser = response.data.data;
+
+    localStorage.setItem("user", JSON.stringify(currentUser));
+    setUser(currentUser);
+    return currentUser;
+  };
+
   const logout = async () => {
     try {
       await authAPI.logout();
@@ -86,6 +98,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
+    completeOAuthLogin,
     logout,
     updateUser,
     isAuthenticated: !!user,

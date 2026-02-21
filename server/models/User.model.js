@@ -115,6 +115,18 @@ const userSchema = new mongoose.Schema(
         default: true,
       },
     },
+    uiPreferences: {
+      theme: {
+        type: String,
+        enum: ["medical", "midnight", "emerald"],
+        default: "midnight",
+      },
+      mode: {
+        type: String,
+        enum: ["light", "dark"],
+        default: "light",
+      },
+    },
     isActive: {
       type: Boolean,
       default: true,

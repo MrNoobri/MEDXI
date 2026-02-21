@@ -178,7 +178,7 @@ const sendChatMessage = async (req, res) => {
 
     // Try to use real Gemini API
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
       // Build conversation context
       let prompt = SYSTEM_PROMPT + "\n\n";

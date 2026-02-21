@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { healthMetricsAPI } from "../api";
+import { googleFitAPI } from "../api";
 
 const GoogleFitConnect = () => {
   const [connected, setConnected] = useState(false);
@@ -8,7 +8,7 @@ const GoogleFitConnect = () => {
 
   useEffect(() => {
     checkConnectionStatus();
-    
+
     // Check for OAuth callback parameters
     const params = new URLSearchParams(window.location.search);
     if (params.get("googlefit") === "connected") {
@@ -23,12 +23,8 @@ const GoogleFitConnect = () => {
 
   const checkConnectionStatus = async () => {
     try {
-      const response = await fetch("/api/googlefit/status", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await response.json();
+      const response = await googleFitAPI.getStatus();
+      const data = response.data;
       if (data.success) {
         setConnected(data.data.connected);
       }
@@ -40,12 +36,8 @@ const GoogleFitConnect = () => {
   const handleConnect = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/googlefit/auth", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await response.json();
+      const response = await googleFitAPI.getAuthUrl();
+      const data = response.data;
 
       if (data.success && data.data.authUrl) {
         // Redirect to Google OAuth
@@ -55,7 +47,11 @@ const GoogleFitConnect = () => {
       }
     } catch (error) {
       console.error("Error connecting to Google Fit:", error);
-      alert("Failed to connect to Google Fit. Please try again.");
+      alert(
+        error.response?.status === 401
+          ? "Session expired. Please log in again."
+          : "Failed to connect to Google Fit. Please try again.",
+      );
       setLoading(false);
     }
   };
@@ -67,13 +63,8 @@ const GoogleFitConnect = () => {
 
     try {
       setLoading(true);
-      const response = await fetch("/api/googlefit/disconnect", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await response.json();
+      const response = await googleFitAPI.disconnect();
+      const data = response.data;
 
       if (data.success) {
         setConnected(false);
@@ -92,13 +83,8 @@ const GoogleFitConnect = () => {
   const handleSync = async () => {
     try {
       setSyncing(true);
-      const response = await fetch("/api/googlefit/sync", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await response.json();
+      const response = await googleFitAPI.sync();
+      const data = response.data;
 
       if (data.success) {
         alert("Google Fit data synced successfully! Refresh to see new data.");
@@ -114,23 +100,19 @@ const GoogleFitConnect = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-card p-6 rounded-xl shadow-md border border-border theme-surface">
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-            <svg
-              className="w-6 h-6 text-white"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
+          <div className="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center text-primary-foreground">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-foreground">
               Google Fit Integration
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {connected
                 ? "Connected - Syncing your health data automatically"
                 : "Connect your Google Fit to sync health data from your devices"}
@@ -141,13 +123,13 @@ const GoogleFitConnect = () => {
         <div className="flex items-center space-x-2">
           {connected ? (
             <>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <span className="w-2 h-2 mr-1 bg-green-600 rounded-full animate-pulse"></span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-light text-success-dark">
+                <span className="w-2 h-2 mr-1 bg-success rounded-full animate-pulse"></span>
                 Connected
               </span>
             </>
           ) : (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
               Not Connected
             </span>
           )}
@@ -160,7 +142,7 @@ const GoogleFitConnect = () => {
             <button
               onClick={handleSync}
               disabled={syncing || loading}
-              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {syncing ? (
                 <>
@@ -207,7 +189,7 @@ const GoogleFitConnect = () => {
             <button
               onClick={handleDisconnect}
               disabled={loading || syncing}
-              className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex justify-center items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-card hover:bg-secondary/40 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Disconnect
             </button>
@@ -216,7 +198,7 @@ const GoogleFitConnect = () => {
           <button
             onClick={handleConnect}
             disabled={loading}
-            className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-gradient-to-r from-primary to-secondary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -243,7 +225,11 @@ const GoogleFitConnect = () => {
               </>
             ) : (
               <>
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
                 </svg>
                 Connect Google Fit
@@ -254,11 +240,11 @@ const GoogleFitConnect = () => {
       </div>
 
       {!connected && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">
+        <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+          <h4 className="text-sm font-medium text-primary mb-2">
             What data will be synced?
           </h4>
-          <ul className="text-sm text-blue-700 space-y-1">
+          <ul className="text-sm text-foreground/90 space-y-1">
             <li>• Steps and activity data</li>
             <li>• Heart rate measurements</li>
             <li>• Sleep duration</li>
@@ -266,8 +252,9 @@ const GoogleFitConnect = () => {
             <li>• Blood glucose (if available)</li>
             <li>• Oxygen saturation (if available)</li>
           </ul>
-          <p className="text-xs text-blue-600 mt-3">
-            <strong>Note for iPhone users:</strong> Install the Google Fit app and connect it to Apple Health first.
+          <p className="text-xs text-muted-foreground mt-3">
+            <strong>Note for iPhone users:</strong> Install the Google Fit app
+            and connect it to Apple Health first.
           </p>
         </div>
       )}

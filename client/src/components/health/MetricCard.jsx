@@ -5,14 +5,14 @@ const MetricCard = ({ title, value, unit, status, icon, onClick, trend }) => {
     if (status === "normal") return "border-success text-success-dark";
     if (status === "warning") return "border-warning text-warning-dark";
     if (status === "critical") return "border-danger text-danger-dark";
-    return "border-gray-300 text-gray-600";
+    return "border-border text-foreground";
   };
 
   const getStatusBgColor = () => {
     if (status === "normal") return "bg-success-light";
     if (status === "warning") return "bg-warning-light";
     if (status === "critical") return "bg-danger-light";
-    return "bg-gray-100";
+    return "bg-muted";
   };
 
   return (
@@ -22,12 +22,14 @@ const MetricCard = ({ title, value, unit, status, icon, onClick, trend }) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-sm font-medium text-muted-foreground mb-1">
+            {title}
+          </p>
           <div className="flex items-baseline space-x-2">
-            <p className="text-3xl font-bold text-gray-900">
+            <p className="text-3xl font-bold text-foreground">
               {value !== null && value !== undefined ? value : "--"}
             </p>
-            {unit && <p className="text-sm text-gray-500">{unit}</p>}
+            {unit && <p className="text-sm text-muted-foreground">{unit}</p>}
           </div>
           {trend && (
             <p

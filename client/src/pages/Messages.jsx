@@ -59,15 +59,15 @@ const Messages = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-md h-[calc(100vh-12rem)] flex overflow-hidden">
+        <div className="bg-card border border-border rounded-lg shadow-md h-[calc(100vh-12rem)] flex overflow-hidden theme-surface">
           {/* Conversations Sidebar */}
-          <div className="w-1/3 border-r border-gray-200">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Messages</h2>
+          <div className="w-1/3 border-r border-border">
+            <div className="p-4 border-b border-border">
+              <h2 className="text-xl font-bold text-foreground">Messages</h2>
             </div>
             <ConversationList
               conversations={conversationsData}
@@ -81,9 +81,9 @@ const Messages = () => {
             {selectedConversation ? (
               <>
                 {/* Thread Header */}
-                <div className="p-4 border-b border-gray-200 bg-white">
+                <div className="p-4 border-b border-border bg-card">
                   <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold mr-3">
+                    <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold mr-3">
                       {
                         selectedConversation.participant?.profile
                           ?.firstName?.[0]
@@ -91,11 +91,11 @@ const Messages = () => {
                       {selectedConversation.participant?.profile?.lastName?.[0]}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-foreground">
                         {selectedConversation.participant?.profile?.firstName}{" "}
                         {selectedConversation.participant?.profile?.lastName}
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         {selectedConversation.participant?.role === "provider"
                           ? selectedConversation.participant?.profile
                               ?.specialization || "Healthcare Provider"
@@ -112,7 +112,7 @@ const Messages = () => {
                 />
               </>
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-500">
+              <div className="flex items-center justify-center h-full text-muted-foreground">
                 <div className="text-center">
                   <div className="text-6xl mb-4">💬</div>
                   <p className="text-lg">
