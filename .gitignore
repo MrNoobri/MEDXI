@@ -8,7 +8,7 @@ node_modules/
 
 # Production
 /build
-/dist
+dist/
 
 # Environment variables
 .env
@@ -37,3 +37,5 @@ Thumbs.db
 
 # Misc
 .cache/
+tmpclaude-*
+nul

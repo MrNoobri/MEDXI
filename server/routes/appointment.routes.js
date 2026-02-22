@@ -12,6 +12,9 @@ router.post("/", appointmentController.createAppointment);
 // Get appointments
 router.get("/", appointmentController.getAppointments);
 
+// Get provider's patients (must be before /:id)
+router.get("/provider/patients", appointmentController.getProviderPatients);
+
 // Get provider availability
 router.get(
   "/availability/:providerId",
