@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Appointment = require("../models/Appointment.model");
 const User = require("../models/User.model");
 const { createAuditLog } = require("../middleware/audit.middleware");
@@ -335,6 +336,60 @@ const getProviderAvailability = async (req, res) => {
   }
 };
 
+/**
+ * Get unique patients for a provider (derived from appointments)
+ */
+const getProviderPatients = async (req, res) => {
+  try {
+    if (req.user.role !== "provider" && req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    const providerId = req.user._id;
+
+    const patients = await Appointment.aggregate([
+      {
+        $match: {
+          providerId: new mongoose.Types.ObjectId(providerId),
+        },
+      },
+      { $group: { _id: "$patientId" } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "patient",
+        },
+      },
+      { $unwind: "$patient" },
+      {
+        $project: {
+          _id: "$patient._id",
+          email: "$patient.email",
+          profile: "$patient.profile",
+          patientInfo: "$patient.patientInfo",
+        },
+      },
+    ]);
+
+    res.json({
+      success: true,
+      data: patients,
+      count: patients.length,
+    });
+  } catch (error) {
+    console.error("Get provider patients error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve patients",
+    });
+  }
+};
+
 module.exports = {
   createAppointment,
   getAppointments,
@@ -342,4 +397,5 @@ module.exports = {
   updateAppointment,
   cancelAppointment,
   getProviderAvailability,
+  getProviderPatients,
 };

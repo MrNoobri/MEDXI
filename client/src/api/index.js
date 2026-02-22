@@ -33,6 +33,7 @@ export const appointmentsAPI = {
   cancel: (id, reason) => api.post(`/appointments/${id}/cancel`, { reason }),
   getProviderAvailability: (providerId, date) =>
     api.get(`/appointments/availability/${providerId}`, { params: { date } }),
+  getProviderPatients: () => api.get("/appointments/provider/patients"),
 };
 
 // Alerts APIs

@@ -13,9 +13,12 @@ const getAlerts = async (req, res) => {
     if (req.user.role === "patient") {
       query.userId = req.user._id;
     } else if (req.user.role === "provider") {
-      // Providers can see alerts for their patients
-      // This would require additional logic to get patient list
-      query.userId = req.query.userId || req.user._id;
+      if (req.query.patientIds) {
+        const ids = req.query.patientIds.split(",").map((id) => id.trim());
+        query.userId = { $in: ids };
+      } else if (req.query.userId) {
+        query.userId = req.query.userId;
+      }
     }
 
     if (isRead !== undefined) {
