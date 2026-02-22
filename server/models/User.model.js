@@ -136,6 +136,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    // Email verification
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationTokenHash: {
+      type: String,
+      select: false,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
+    },
+    // Password reset
+    resetPasswordTokenHash: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
+    },
     // Google Fit Integration
     googleFitConnected: {
       type: Boolean,

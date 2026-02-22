@@ -40,6 +40,7 @@ export const alertsAPI = {
   getAll: (params) => api.get("/alerts", { params }),
   getUnreadCount: () => api.get("/alerts/unread-count"),
   markAsRead: (id) => api.patch(`/alerts/${id}/read`),
+  markResolved: (id) => api.post(`/alerts/${id}/acknowledge`),
   acknowledge: (id) => api.post(`/alerts/${id}/acknowledge`),
   delete: (id) => api.delete(`/alerts/${id}`),
 };

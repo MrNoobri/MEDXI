@@ -1,4 +1,5 @@
 import React from "react";
+import { ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
 
 const MetricCard = ({ title, value, unit, status, icon, onClick, trend }) => {
   const getStatusColor = () => {
@@ -18,7 +19,9 @@ const MetricCard = ({ title, value, unit, status, icon, onClick, trend }) => {
   return (
     <div
       onClick={onClick}
-      className={`metric-card border-l-4 ${getStatusColor()} ${onClick ? "cursor-pointer" : ""}`}
+      className={`relative overflow-hidden rounded-2xl p-6 transition-all duration-300 ${
+        onClick ? "cursor-pointer hover:shadow-lg hover:-translate-y-0.5" : ""
+      } bg-white border border-slate-100 shadow-sm group`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -39,21 +42,40 @@ const MetricCard = ({ title, value, unit, status, icon, onClick, trend }) => {
             </p>
           )}
         </div>
-        {icon && (
-          <div className={`p-3 rounded-lg ${getStatusBgColor()}`}>
-            <span className="text-2xl">{icon}</span>
+        {status && (
+          <div
+            className={`px-2.5 py-1 rounded-full text-xs font-medium border ${styles.bg} ${styles.border} ${styles.text} flex items-center gap-1.5`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${styles.indicator}`} />
+            {status.charAt(0).toUpperCase() + status.slice(1)}
           </div>
         )}
       </div>
-      {status && (
-        <div className="mt-3">
-          <span
-            className={`status-indicator ${status === "normal" ? "status-normal" : status === "warning" ? "status-warning" : "status-critical"}`}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+
+      <div>
+        <h3 className="text-sm font-medium text-slate-500 mb-1">{title}</h3>
+        <div className="flex items-baseline gap-2">
+          <span className="text-3xl font-bold text-slate-900 tracking-tight">
+            {value !== null && value !== undefined ? value : "--"}
           </span>
+          {unit && (
+            <span className="text-sm font-medium text-slate-400">{unit}</span>
+          )}
         </div>
-      )}
+
+        {trend !== undefined && trend !== null && (
+          <div
+            className={`flex items-center mt-3 text-xs font-medium ${trend > 0 ? "text-emerald-600" : "text-rose-600"}`}
+          >
+            {trend > 0 ? (
+              <ArrowUpRight className="w-3.5 h-3.5 mr-1" />
+            ) : (
+              <ArrowDownRight className="w-3.5 h-3.5 mr-1" />
+            )}
+            {Math.abs(trend)}% vs last week
+          </div>
+        )}
+      </div>
     </div>
   );
 };

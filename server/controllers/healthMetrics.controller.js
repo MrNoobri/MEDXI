@@ -1,7 +1,10 @@
 const HealthMetric = require("../models/HealthMetric.model");
 const Alert = require("../models/Alert.model");
+const User = require("../models/User.model");
 const { createAuditLog } = require("../middleware/audit.middleware");
 const { awardPoints } = require("./gamification.controller");
+const { notifyUser } = require("../socket");
+const { sendAlertEmail } = require("./alert.controller");
 
 /**
  * Health metric thresholds for alert generation
@@ -61,7 +64,7 @@ const checkAlertThreshold = async (metric) => {
   }
 
   if (shouldAlert) {
-    await Alert.create({
+    const alert = await Alert.create({
       userId: metric.userId,
       severity,
       type: "health-metric",
@@ -74,6 +77,15 @@ const checkAlertThreshold = async (metric) => {
         threshold,
       },
     });
+
+    notifyUser(metric.userId, "alert:new", { alert });
+
+    const user = await User.findById(metric.userId).select(
+      "email profile.firstName profile.lastName",
+    );
+    if (user) {
+      await sendAlertEmail(alert, user);
+    }
   }
 };
 
@@ -107,6 +119,8 @@ const createMetric = async (req, res) => {
 
     // Award gamification points
     await awardPoints(userId, metricType);
+
+    notifyUser(userId, "metric:updated", { metric });
 
     // Audit log
     await createAuditLog(req.user._id, req.user.role, "edit-patient-data", {
@@ -219,6 +233,7 @@ const getLatestMetrics = async (req, res) => {
       "weight",
       "calories",
       "oxygenSaturation",
+      "distance",
     ];
 
     const latestMetrics = {};

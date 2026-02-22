@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.io Test</title>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Socket.io Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="logs"></div>
+
+    <script>
+        const logs = document.getElementById('logs');
+        const status = document.getElementById('status');
+        
+        function log(msg) {
+            const p = document.createElement('p');
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logs.appendChild(p);
+        }
+
+        // Get token from localStorage (you need to login first in the app)
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            status.textContent = '❌ No token found. Please login to MEDXI first at http://localhost:5173';
+            status.style.color = 'red';
+            log('ERROR: No authentication token found in localStorage');
+        } else {
+            log('Token found, attempting connection...');
+            
+            const socket = io('http://localhost:5000', {
+                path: '/ws',
+                auth: { token },
+                transports: ['websocket', 'polling']
+            });
+
+            socket.on('connect', () => {
+                status.textContent = '✅ Connected to Socket.io server';
+                status.style.color = 'green';
+                log(`Connected with socket ID: ${socket.id}`);
+            });
+
+            socket.on('disconnect', () => {
+                status.textContent = '❌ Disconnected';
+                status.style.color = 'red';
+                log('Disconnected from server');
+            });
+
+            socket.on('connect_error', (error) => {
+                status.textContent = '❌ Connection Error';
+                status.style.color = 'red';
+                log(`Connection error: ${error.message}`);
+            });
+
+            // Listen for notification events
+            socket.on('alert:new', (data) => {
+                log(`📢 ALERT: ${JSON.stringify(data)}`);
+            });
+
+            socket.on('metric:updated', (data) => {
+                log(`📊 METRIC UPDATED: ${JSON.stringify(data)}`);
+            });
+
+            socket.on('appointment:confirmed', (data) => {
+                log(`📅 APPOINTMENT: ${JSON.stringify(data)}`);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { googleFitAPI } from "../api";
 
-const GoogleFitConnect = () => {
+const GoogleFitConnect = ({ onSyncComplete }) => {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -33,15 +33,37 @@ const GoogleFitConnect = () => {
     }
   };
 
+  useEffect(() => {
+    checkConnectionStatus();
+
+    // Check for OAuth callback parameters
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("googlefit") === "connected") {
+      setConnected(true);
+      setToast({
+        message: "Google Fit connected successfully!",
+        type: "success",
+      });
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (params.get("error")) {
+      setToast({
+        message: "Failed to connect Google Fit. Please try again.",
+        type: "error",
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const handleConnect = async () => {
     try {
       setLoading(true);
       const response = await googleFitAPI.getAuthUrl();
       const data = response.data;
 
-      if (data.success && data.data.authUrl) {
+      if (response.data.success && response.data.data.authUrl) {
         // Redirect to Google OAuth
-        window.location.href = data.data.authUrl;
+        window.location.href = response.data.data.authUrl;
       } else {
         throw new Error("Failed to get authorization URL");
       }
@@ -57,24 +79,24 @@ const GoogleFitConnect = () => {
   };
 
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure you want to disconnect Google Fit?")) {
-      return;
-    }
-
     try {
       setLoading(true);
       const response = await googleFitAPI.disconnect();
       const data = response.data;
 
-      if (data.success) {
+      if (response.data.success) {
         setConnected(false);
-        alert("Google Fit disconnected successfully");
+        setToast({
+          message: "Google Fit disconnected successfully",
+          type: "success",
+        });
+        if (onSyncComplete) onSyncComplete();
       } else {
-        throw new Error(data.message);
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.error("Error disconnecting Google Fit:", error);
-      alert("Failed to disconnect Google Fit");
+      setToast({ message: "Failed to disconnect Google Fit", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -86,14 +108,23 @@ const GoogleFitConnect = () => {
       const response = await googleFitAPI.sync();
       const data = response.data;
 
-      if (data.success) {
-        alert("Google Fit data synced successfully! Refresh to see new data.");
+      if (response.data.success) {
+        setToast({
+          message: "Google Fit data synced successfully!",
+          type: "success",
+        });
+        // Trigger refresh of health metrics
+        if (onSyncComplete) onSyncComplete();
       } else {
-        throw new Error(data.message);
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.error("Error syncing Google Fit data:", error);
-      alert("Failed to sync Google Fit data");
+      setToast({
+        message:
+          error.response?.data?.message || "Failed to sync Google Fit data",
+        type: "error",
+      });
     } finally {
       setSyncing(false);
     }
@@ -257,6 +288,14 @@ const GoogleFitConnect = () => {
             and connect it to Apple Health first.
           </p>
         </div>
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );

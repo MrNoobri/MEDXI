@@ -1,6 +1,8 @@
 const Appointment = require("../models/Appointment.model");
 const User = require("../models/User.model");
 const { createAuditLog } = require("../middleware/audit.middleware");
+const emailService = require("../services/emailService");
+const { notifyUser } = require("../socket");
 
 /**
  * Create appointment
@@ -60,6 +62,50 @@ const createAppointment = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.headers["user-agent"],
     });
+
+    notifyUser(patientId, "appointment:confirmed", { appointment });
+    notifyUser(providerId, "appointment:confirmed", { appointment });
+
+    // Send appointment confirmation email
+    if (emailService.isAvailable() && appointment.patientId.email) {
+      try {
+        const appointmentDate = new Date(scheduledAt).toLocaleDateString(
+          "en-US",
+          {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          },
+        );
+        const appointmentTime = new Date(scheduledAt).toLocaleTimeString(
+          "en-US",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          },
+        );
+
+        await emailService.sendAppointmentConfirmation({
+          to: appointment.patientId.email,
+          patientName: `${appointment.patientId.profile.firstName} ${appointment.patientId.profile.lastName}`,
+          providerName: `${appointment.providerId.profile.firstName} ${appointment.providerId.profile.lastName}`,
+          specialization:
+            provider.providerInfo?.specialization || "Healthcare Provider",
+          appointmentDate,
+          appointmentTime,
+          duration: duration || 30,
+          reason: reason || "",
+          dashboardUrl: `${process.env.CLIENT_URL}/dashboard/appointments`,
+        });
+      } catch (emailError) {
+        console.error(
+          "Failed to send appointment confirmation email:",
+          emailError,
+        );
+        // Don't fail the request if email fails
+      }
+    }
 
     res.status(201).json({
       success: true,

@@ -1,4 +1,5 @@
 const Alert = require("../models/Alert.model");
+const emailService = require("../services/emailService");
 
 /**
  * Get user alerts
@@ -121,10 +122,16 @@ const acknowledgeAlert = async (req, res) => {
       });
     }
 
-    if (req.user.role !== "provider" && req.user.role !== "admin") {
+    // Authorization check
+    const isAuthorized =
+      req.user.role === "admin" ||
+      req.user.role === "provider" ||
+      alert.userId.toString() === req.user._id.toString();
+
+    if (!isAuthorized) {
       return res.status(403).json({
         success: false,
-        message: "Only healthcare providers can acknowledge alerts",
+        message: "Access denied",
       });
     }
 
@@ -188,10 +195,58 @@ const deleteAlert = async (req, res) => {
   }
 };
 
+/**
+ * Helper function to send alert notification email
+ * Can be called from other parts of the system when creating alerts
+ */
+const sendAlertEmail = async (alert, user) => {
+  if (!emailService.isAvailable() || !user.email) {
+    return;
+  }
+
+  try {
+    const critical = alert.severity === "critical";
+    const severityText =
+      alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1);
+
+    // Generate recommendations based on alert type
+    const recommendations = [];
+    if (alert.metricType === "heartRate") {
+      if (critical) {
+        recommendations.push("Seek immediate medical attention");
+        recommendations.push("Do not engage in strenuous activity");
+      } else {
+        recommendations.push("Monitor your heart rate regularly");
+        recommendations.push("Stay hydrated and rest");
+      }
+    } else if (alert.metricType === "bloodGlucose") {
+      recommendations.push("Check your blood sugar again");
+      recommendations.push("Follow your meal plan");
+      recommendations.push("Contact your healthcare provider");
+    }
+
+    await emailService.sendAlertNotification({
+      to: user.email,
+      patientName: `${user.profile.firstName} ${user.profile.lastName}`,
+      metricType: alert.metricType,
+      metricValue: alert.metricValue,
+      unit: alert.unit || "",
+      severity: severityText,
+      message: alert.message,
+      recommendations,
+      critical,
+      dashboardUrl: `${process.env.CLIENT_URL}/dashboard`,
+    });
+  } catch (error) {
+    console.error("Failed to send alert email:", error);
+  }
+};
+
 module.exports = {
   getAlerts,
   getUnreadCount,
   markAsRead,
   acknowledgeAlert,
   deleteAlert,
+  sendAlertEmail, // Export for use in other controllers
 };

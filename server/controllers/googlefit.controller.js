@@ -197,7 +197,8 @@ async function syncGoogleFitData(userId) {
   try {
     const user = await User.findById(userId);
     if (!user || !user.googleFitConnected || !user.googleFitTokens) {
-      throw new Error("Google Fit not connected");
+      console.log(`Google Fit not connected for user ${userId}`);
+      return;
     }
 
     // Set up OAuth client with user's tokens
@@ -211,6 +212,21 @@ async function syncGoogleFitData(userId) {
       access_token: user.googleFitTokens.accessToken,
       refresh_token: user.googleFitTokens.refreshToken,
       expiry_date: user.googleFitTokens.expiryDate,
+    });
+
+    // Handle token refresh on API calls
+    userOAuth2Client.on("tokens", async (tokens) => {
+      if (tokens.refresh_token) {
+        // Update refresh token if we got a new one
+        user.googleFitTokens.refreshToken = tokens.refresh_token;
+      }
+      if (tokens.access_token) {
+        user.googleFitTokens.accessToken = tokens.access_token;
+      }
+      if (tokens.expiry_date) {
+        user.googleFitTokens.expiryDate = tokens.expiry_date;
+      }
+      await user.save();
     });
 
     const fitness = google.fitness({ version: "v1", auth: userOAuth2Client });
@@ -246,7 +262,7 @@ async function syncGoogleFitData(userId) {
       sleep: "derived:com.google.sleep.segment:com.google.android.gms:merged",
     };
 
-    // Fetch Steps - Per minute for detailed tracking
+    // Fetch Steps - Daily aggregation for dashboard display
     try {
       const stepsResponse = await fitness.users.dataset.aggregate({
         userId: "me",
@@ -256,7 +272,7 @@ async function syncGoogleFitData(userId) {
               dataTypeName: "com.google.step_count.delta",
             },
           ],
-          bucketByTime: { durationMillis: 3600000 }, // Hourly buckets for more granular data
+          bucketByTime: { durationMillis: 86400000 }, // Daily buckets
           startTimeMillis: startTime,
           endTimeMillis: endTime,
         },
@@ -265,26 +281,29 @@ async function syncGoogleFitData(userId) {
       if (stepsResponse.data.bucket) {
         for (const bucket of stepsResponse.data.bucket) {
           if (bucket.dataset && bucket.dataset[0]?.point) {
+            let totalSteps = 0;
             for (const point of bucket.dataset[0].point) {
               const steps = point.value?.[0]?.intVal;
               if (steps > 0) {
-                await HealthMetric.findOneAndUpdate(
-                  {
-                    userId: userId,
-                    metricType: "steps",
-                    timestamp: new Date(
-                      parseInt(point.startTimeNanos) / 1000000,
-                    ),
-                  },
-                  {
-                    value: steps,
-                    unit: "steps",
-                    source: "google_fit",
-                  },
-                  { upsert: true, new: true },
-                );
-                metricsProcessed.steps++;
+                totalSteps += steps;
               }
+            }
+
+            if (totalSteps > 0) {
+              await HealthMetric.findOneAndUpdate(
+                {
+                  userId: userId,
+                  metricType: "steps",
+                  timestamp: new Date(parseInt(bucket.startTimeMillis)),
+                },
+                {
+                  value: totalSteps,
+                  unit: "steps",
+                  source: "google_fit",
+                },
+                { upsert: true, new: true },
+              );
+              metricsProcessed.steps++;
             }
           }
         }
@@ -684,8 +703,29 @@ async function syncGoogleFitData(userId) {
     console.log(`✓ Google Fit data synced for user ${userId}`);
     console.log(`  Metrics processed:`, metricsProcessed);
   } catch (error) {
-    console.error("Error in syncGoogleFitData:", error);
-    throw error;
+    console.error("Error in syncGoogleFitData:", error.message);
+
+    // Handle invalid_grant error (expired/revoked tokens)
+    if (
+      error.message &&
+      (error.message.includes("invalid_grant") ||
+        error.message.includes("invalid_client"))
+    ) {
+      console.log(
+        `⚠️ Google Fit tokens expired for user ${userId}. User needs to reconnect.`,
+      );
+
+      // Disconnect Google Fit for this user
+      const user = await User.findById(userId);
+      if (user) {
+        user.googleFitConnected = false;
+        user.googleFitTokens = null;
+        await user.save();
+        console.log(
+          `✓ Google Fit disconnected for user ${userId} due to invalid tokens`,
+        );
+      }
+    }
   }
 }
 
