@@ -68,7 +68,42 @@ cd ../client
 npm install
 ```
 
-### 3. Seed Demo Data (Optional)
+### 3. Configure Environment Variables
+
+An example env file is included at the project root: `.env.example`.
+
+For local development:
+
+1. Copy the **server** variables from `.env.example` into `server/.env`
+2. Copy the **client** variables from `.env.example` into `client/.env`
+
+Minimum required values:
+
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `JWT_REFRESH_SECRET`
+- `GEMINI_API_KEY`
+- `VITE_API_URL` (in `client/.env`)
+
+For Google OAuth (Login / Signup), also set:
+
+- `GOOGLE_AUTH_CLIENT_ID`
+- `GOOGLE_AUTH_CLIENT_SECRET`
+- `GOOGLE_AUTH_REDIRECT_URI`
+- `CLIENT_URL`
+
+Google Console local URIs used by this app:
+
+- Authorized JavaScript origins:
+  - `http://localhost:5173`
+  - `http://localhost:5000`
+- Authorized redirect URIs:
+  - `http://localhost:5000/api/auth/google/callback`
+  - `http://localhost:5000/api/googlefit/callback`
+
+If your OAuth consent screen is in **Testing**, add each tester email under **Test users** in Google Cloud.
+
+### 4. Seed Demo Data (Optional)
 
 ```bash
 cd server
@@ -100,6 +135,13 @@ npm run dev
 ```
 
 Client runs on `http://localhost:5173`
+
+If dependency imports fail after pull/update, reinstall dependencies in both folders:
+
+```bash
+cd server && npm install
+cd ../client && npm install
+```
 
 ## 📱 Key Features Walkthrough
 
@@ -146,8 +188,13 @@ Client runs on `http://localhost:5173`
 
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - User login
+- `GET /api/auth/google` - Start Google OAuth flow
+- `GET /api/auth/google/callback` - Google OAuth callback
 - `POST /api/auth/refresh` - Refresh access token
 - `POST /api/auth/logout` - User logout
+- `POST /api/auth/set-password` - Set password after OAuth signup
+- `PATCH /api/auth/preferences` - Update theme/mode preferences
+- `GET /api/auth/me` - Get current authenticated user
 
 ### Health Metrics
 
