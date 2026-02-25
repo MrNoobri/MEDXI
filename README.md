@@ -4,6 +4,14 @@ A comprehensive digital health platform that empowers patients to track their he
 
 ## 🌟 Features
 
+### Recent Updates
+
+- **Enhanced Provider Workspace**: Multi-tab provider dashboard with overview, calendar, patient list, alerts, and messaging workflows
+- **Gamification System**: User stats, points, streak tracking, and leaderboard endpoints
+- **Expanded Google Fit Sync**: Broader metric ingestion with improved mapping and schema alignment
+- **Improved Metric Quality**: Better threshold handling and metric granularity for more accurate health tracking
+- **Theme & Auth UX Improvements**: OAuth login/signup support, password-setup flow after OAuth signup, and persisted UI preferences
+
 ### For Patients
 
 - **Health Metrics Tracking**: Monitor vital signs including heart rate, blood pressure, blood glucose, oxygen saturation, sleep, and steps
@@ -15,9 +23,10 @@ A comprehensive digital health platform that empowers patients to track their he
 
 ### For Healthcare Providers
 
-- **Patient Management**: Access patient health records and metrics
-- **Real-time Monitoring**: Track patient vital signs and receive alerts
-- **Provider Dashboard**: Comprehensive view of patient data and trends
+- **Patient Management**: Access provider patient lists and detailed patient metric snapshots
+- **Real-time Monitoring**: Track patient vital signs and receive alerts with quick acknowledge actions
+- **Provider Dashboard**: Tabbed dashboard with overview, calendar, patients, alerts, and messaging panels
+- **Appointment Operations**: Manage appointments and review provider availability from the dashboard
 
 ### For Administrators
 
@@ -173,6 +182,17 @@ cd ../client && npm install
 - Receive recommendations for improving your health
 - View trends and patterns in your data
 
+### 5. Provider Dashboard (Updated)
+
+- Use dedicated tabs for **Overview**, **Calendar**, **Patients**, **Alerts**, and **Messages**
+- Open detailed appointment and patient panels directly from the provider workflow
+- Review provider patient lists through dedicated provider endpoints
+
+### 6. Gamification
+
+- Track points, streaks, and user health engagement stats
+- Access leaderboard data to compare activity across users
+
 ## 🔐 Security Features
 
 - **Password Hashing**: bcrypt with salt rounds
@@ -203,6 +223,45 @@ cd ../client && npm install
 - `POST /api/health-metrics` - Create new metric
 - `PUT /api/health-metrics/:id` - Update metric
 - `DELETE /api/health-metrics/:id` - Delete metric
+
+### Google Fit
+
+- `GET /api/googlefit/auth` - Get Google Fit OAuth URL
+- `GET /api/googlefit/callback` - Google Fit OAuth callback
+- `GET /api/googlefit/status` - Get Google Fit connection status
+- `POST /api/googlefit/sync` - Manually sync Google Fit data
+- `POST /api/googlefit/disconnect` - Disconnect Google Fit account
+
+### Gamification
+
+- `GET /api/gamification/stats` - Get user points, streak, and achievement stats
+- `GET /api/gamification/leaderboard` - Get gamification leaderboard
+
+### Appointments
+
+- `GET /api/appointments` - Get appointments
+- `POST /api/appointments` - Create appointment
+- `GET /api/appointments/provider/patients` - Get provider's patients
+- `GET /api/appointments/availability/:providerId` - Get provider availability
+- `GET /api/appointments/:id` - Get appointment by ID
+- `PATCH /api/appointments/:id` - Update appointment
+- `POST /api/appointments/:id/cancel` - Cancel appointment
+
+### Alerts
+
+- `GET /api/alerts` - Get alerts
+- `GET /api/alerts/unread-count` - Get unread alert count
+- `PATCH /api/alerts/:id/read` - Mark alert as read
+- `POST /api/alerts/:id/acknowledge` - Acknowledge alert
+- `DELETE /api/alerts/:id` - Delete alert
+
+### Messages
+
+- `POST /api/messages` - Send message
+- `GET /api/messages/conversations` - Get conversations list
+- `GET /api/messages/unread-count` - Get unread message count
+- `GET /api/messages/:userId` - Get messages with a user
+- `DELETE /api/messages/:id` - Delete message
 
 ### AI Chatbot
 
