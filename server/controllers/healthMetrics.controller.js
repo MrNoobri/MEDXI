@@ -1,5 +1,6 @@
 const HealthMetric = require("../models/HealthMetric.model");
 const Alert = require("../models/Alert.model");
+const mongoose = require("mongoose");
 const { createAuditLog } = require("../middleware/audit.middleware");
 const { awardPoints } = require("./gamification.controller");
 
@@ -345,10 +346,132 @@ const deleteMetric = async (req, res) => {
   }
 };
 
+/**
+ * Get aggregated daily totals for today's metrics.
+ * - Summable (steps, calories, distance, sleep): SUM of all values today
+ * - Averageable (heartRate, oxygenSaturation): AVG of all values today
+ * - Latest-value (weight, bloodPressure, bloodGlucose): most recent reading
+ */
+const getDailyTotals = async (req, res) => {
+  try {
+    const userId = req.params.userId || req.user._id;
+
+    // Authorization check
+    if (
+      req.user.role === "patient" &&
+      userId.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const results = {};
+
+    // ── Summable metrics (steps, calories, distance, sleep) ──
+    const summableTypes = ["steps", "calories", "distance", "sleep"];
+    for (const type of summableTypes) {
+      const agg = await HealthMetric.aggregate([
+        {
+          $match: {
+            userId: userObjectId,
+            metricType: type,
+            timestamp: { $gte: startOfDay, $lte: endOfDay },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$value" },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      if (agg.length > 0 && agg[0].total > 0) {
+        const latest = await HealthMetric.getLatest(userId, type);
+        results[type] = {
+          value: Math.round(agg[0].total * 100) / 100,
+          count: agg[0].count,
+          unit: latest?.unit || "",
+          timestamp: latest?.timestamp,
+        };
+      }
+    }
+
+    // ── Averageable metrics (heartRate, oxygenSaturation) ──
+    const averageableTypes = ["heartRate", "oxygenSaturation"];
+    for (const type of averageableTypes) {
+      const agg = await HealthMetric.aggregate([
+        {
+          $match: {
+            userId: userObjectId,
+            metricType: type,
+            timestamp: { $gte: startOfDay, $lte: endOfDay },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            avg: { $avg: "$value" },
+            min: { $min: "$value" },
+            max: { $max: "$value" },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      if (agg.length > 0) {
+        const latest = await HealthMetric.getLatest(userId, type);
+        results[type] = {
+          value: Math.round(agg[0].avg * 10) / 10,
+          min: agg[0].min,
+          max: agg[0].max,
+          count: agg[0].count,
+          unit: latest?.unit || "",
+          timestamp: latest?.timestamp,
+        };
+      }
+    }
+
+    // ── Latest-value metrics (weight, bloodPressure, bloodGlucose) ──
+    const latestTypes = ["weight", "bloodPressure", "bloodGlucose"];
+    for (const type of latestTypes) {
+      const latest = await HealthMetric.getLatest(userId, type);
+      if (latest) {
+        results[type] = {
+          value: latest.value,
+          unit: latest.unit,
+          timestamp: latest.timestamp,
+        };
+      }
+    }
+
+    res.json({
+      success: true,
+      data: results,
+    });
+  } catch (error) {
+    console.error("Get daily totals error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve daily totals",
+    });
+  }
+};
+
 module.exports = {
   createMetric,
   getMetrics,
   getLatestMetrics,
   getMetricStats,
+  getDailyTotals,
   deleteMetric,
 };

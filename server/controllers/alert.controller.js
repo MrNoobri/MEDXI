@@ -5,7 +5,7 @@ const Alert = require("../models/Alert.model");
  */
 const getAlerts = async (req, res) => {
   try {
-    const { isRead, severity, limit = 50 } = req.query;
+    const { isRead, isAcknowledged, severity, limit = 50 } = req.query;
 
     const query = {};
 
@@ -23,6 +23,10 @@ const getAlerts = async (req, res) => {
 
     if (isRead !== undefined) {
       query.isRead = isRead === "true";
+    }
+
+    if (isAcknowledged !== undefined) {
+      query.isAcknowledged = isAcknowledged === "true";
     }
 
     if (severity) {
@@ -124,7 +128,15 @@ const acknowledgeAlert = async (req, res) => {
       });
     }
 
-    if (req.user.role !== "provider" && req.user.role !== "admin") {
+    // Providers/admins can acknowledge any alert; patients can acknowledge their own
+    if (req.user.role === "patient") {
+      if (alert.userId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied",
+        });
+      }
+    } else if (req.user.role !== "provider" && req.user.role !== "admin") {
       return res.status(403).json({
         success: false,
         message: "Only healthcare providers can acknowledge alerts",
@@ -134,6 +146,7 @@ const acknowledgeAlert = async (req, res) => {
     alert.isAcknowledged = true;
     alert.acknowledgedBy = req.user._id;
     alert.acknowledgedAt = new Date();
+    alert.isRead = true;
 
     await alert.save();
 
