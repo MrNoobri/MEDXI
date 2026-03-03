@@ -8,11 +8,16 @@ import { MeshGradient } from "@paper-design/shaders-react";
  * Usage:
  *   <ShaderBackground className="absolute inset-0" />
  */
-export default function ShaderBackground({ className = "", style = {}, speed = 0.12 }) {
+export default function ShaderBackground({
+  className = "",
+  style = {},
+  speed = 0.12,
+}) {
   // Read current theme CSS variables and resolve to actual colors
   const colors = useMemo(() => {
     const root = document.documentElement;
-    const get = (v, fallback) => getComputedStyle(root).getPropertyValue(v).trim() || fallback;
+    const get = (v, fallback) =>
+      getComputedStyle(root).getPropertyValue(v).trim() || fallback;
 
     // Resolve HSL custom-property channels to usable hsl() strings
     const hsl = (channels) => `hsl(${channels})`;
@@ -33,7 +38,12 @@ export default function ShaderBackground({ className = "", style = {}, speed = 0
         color3={colors[2]}
         color4={colors[3]}
         speed={speed}
-        style={{ width: "100%", height: "100%", position: "absolute", inset: 0 }}
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+          inset: 0,
+        }}
       />
     </div>
   );

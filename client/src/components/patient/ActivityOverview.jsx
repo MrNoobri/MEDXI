@@ -6,22 +6,33 @@ import { Button } from "@/components/ui/button";
 import { healthMetricsAPI } from "@/api";
 import WeeklyBarChart from "./WeeklyBarChart";
 import { cn } from "@/lib/utils";
-import {
-  Footprints,
-  Heart,
-  Flame,
-  Moon,
-  Droplets,
-  Ruler,
-} from "lucide-react";
+import { Footprints, Heart, Flame, Moon, Droplets, Ruler } from "lucide-react";
 
 const ACTIVITY_TABS = [
-  { key: "steps", label: "Steps", icon: Footprints, unit: "steps", goal: 10000 },
-  { key: "heartRate", label: "Heart Rate", icon: Heart, unit: "bpm", goal: null },
+  {
+    key: "steps",
+    label: "Steps",
+    icon: Footprints,
+    unit: "steps",
+    goal: 10000,
+  },
+  {
+    key: "heartRate",
+    label: "Heart Rate",
+    icon: Heart,
+    unit: "bpm",
+    goal: null,
+  },
   { key: "calories", label: "Calories", icon: Flame, unit: "kcal", goal: 2000 },
   { key: "sleep", label: "Sleep", icon: Moon, unit: "hrs", goal: 8 },
   { key: "distance", label: "Distance", icon: Ruler, unit: "km", goal: 5 },
-  { key: "oxygenSaturation", label: "SpO2", icon: Droplets, unit: "%", goal: null },
+  {
+    key: "oxygenSaturation",
+    label: "SpO2",
+    icon: Droplets,
+    unit: "%",
+    goal: null,
+  },
 ];
 
 const TIMEFRAMES = [
@@ -76,7 +87,7 @@ export default function ActivityOverview({ className }) {
                   "px-3 py-1 rounded-md text-xs font-medium transition-all",
                   timeframe === t.key
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {t.label}
@@ -101,7 +112,7 @@ export default function ActivityOverview({ className }) {
                   "rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap gap-1.5 shrink-0",
                   isActive
                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/40",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />

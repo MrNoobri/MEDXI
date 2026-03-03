@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -162,10 +167,18 @@ const ProviderDashboard = () => {
   // ── Dock tab mapping ──
   const handleDockTab = (tab) => {
     // Map dock tabs to provider tabs
-    const map = { overview: "overview", patients: "patients", appointments: "calendar", messages: "messages", ai: "overview" };
+    const map = {
+      overview: "overview",
+      patients: "patients",
+      appointments: "calendar",
+      messages: "messages",
+      ai: "overview",
+    };
     setActiveTab(map[tab] || "overview");
     setTimeout(() => {
-      document.getElementById("dashboard-tabs")?.scrollIntoView({ behavior: "smooth" });
+      document
+        .getElementById("dashboard-tabs")
+        ?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 

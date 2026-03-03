@@ -51,7 +51,8 @@ export default function DashboardSidebar({
   const [showThemePicker, setShowThemePicker] = useState(false);
   const navItems = role === "provider" ? PROVIDER_NAV : PATIENT_NAV;
   const firstName = user?.profile?.firstName || "User";
-  const initials = `${(user?.profile?.firstName || "U")[0]}${(user?.profile?.lastName || "")[0] || ""}`.toUpperCase();
+  const initials =
+    `${(user?.profile?.firstName || "U")[0]}${(user?.profile?.lastName || "")[0] || ""}`.toUpperCase();
 
   const handleNavClick = (id) => {
     if (id === "alerts") {
@@ -72,12 +73,14 @@ export default function DashboardSidebar({
         visible
           ? "opacity-100 translate-x-0"
           : "opacity-0 -translate-x-full pointer-events-none",
-        className
+        className,
       )}
     >
       {/* ── Logo ── */}
       <div className="h-16 flex items-center px-5 border-b border-border/30 overflow-hidden shrink-0">
-        <span className="text-foreground font-black text-2xl tracking-tighter shrink-0">XI</span>
+        <span className="text-foreground font-black text-2xl tracking-tighter shrink-0">
+          XI
+        </span>
         <span className="text-muted-foreground font-medium text-sm ml-2 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-200">
           Health
         </span>
@@ -92,8 +95,12 @@ export default function DashboardSidebar({
           {initials}
         </div>
         <div className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-200 min-w-0 text-left">
-          <p className="text-sm font-semibold text-foreground truncate">{firstName}</p>
-          <p className="text-xs text-muted-foreground truncate capitalize">{user?.role || "patient"}</p>
+          <p className="text-sm font-semibold text-foreground truncate">
+            {firstName}
+          </p>
+          <p className="text-xs text-muted-foreground truncate capitalize">
+            {user?.role || "patient"}
+          </p>
         </div>
         <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto opacity-0 group-hover/sidebar:opacity-100 transition-opacity shrink-0" />
       </button>
@@ -113,7 +120,7 @@ export default function DashboardSidebar({
                 "relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 overflow-hidden group/navitem",
                 isActive
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {/* Active indicator pill — animated with layoutId */}
@@ -142,7 +149,7 @@ export default function DashboardSidebar({
               <Icon
                 className={cn(
                   "w-5 h-5 shrink-0 relative z-10 transition-transform duration-200",
-                  isActive ? "scale-110" : "group-hover/navitem:scale-110"
+                  isActive ? "scale-110" : "group-hover/navitem:scale-110",
                 )}
                 strokeWidth={isActive ? 2.5 : 2}
               />
@@ -202,7 +209,9 @@ export default function DashboardSidebar({
                 transition={{ duration: 0.15 }}
                 className="absolute bottom-full left-0 mb-2 w-[200px] bg-card border border-border rounded-xl shadow-xl p-2 z-50"
               >
-                <p className="text-xs text-muted-foreground px-2 py-1 font-medium uppercase tracking-wider">Choose theme</p>
+                <p className="text-xs text-muted-foreground px-2 py-1 font-medium uppercase tracking-wider">
+                  Choose theme
+                </p>
                 {(themes || ["medical", "midnight", "emerald"]).map((t) => (
                   <button
                     key={t}
@@ -214,20 +223,38 @@ export default function DashboardSidebar({
                       "w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-colors",
                       theme === t
                         ? "bg-primary/12 text-primary font-semibold"
-                        : "text-foreground hover:bg-muted/60"
+                        : "text-foreground hover:bg-muted/60",
                     )}
                   >
                     <span
                       className="w-4 h-4 rounded-full border-2 shrink-0"
                       style={{
-                        background: t === "crimson" ? "#e11d48" : t === "medical" ? "#3b82f6" : t === "midnight" ? "#8b5cf6" : "#34d399",
-                        borderColor: theme === t ? "hsl(var(--primary))" : "transparent",
+                        background:
+                          t === "crimson"
+                            ? "#e11d48"
+                            : t === "medical"
+                              ? "#3b82f6"
+                              : t === "midnight"
+                                ? "#8b5cf6"
+                                : "#34d399",
+                        borderColor:
+                          theme === t ? "hsl(var(--primary))" : "transparent",
                       }}
                     />
                     <span className="capitalize">{t}</span>
                     {theme === t && (
-                      <svg className="w-4 h-4 ml-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      <svg
+                        className="w-4 h-4 ml-auto text-primary"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                     )}
                   </button>

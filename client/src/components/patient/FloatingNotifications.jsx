@@ -32,7 +32,12 @@ export default function FloatingNotifications({ visible, className }) {
           initial={{ opacity: 0, scale: 0.6, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.6, y: 20 }}
-          transition={{ type: "spring", stiffness: 300, damping: 22, delay: 0.08 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 22,
+            delay: 0.08,
+          }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate("/alerts")}
@@ -43,7 +48,7 @@ export default function FloatingNotifications({ visible, className }) {
             "flex items-center justify-center",
             "text-muted-foreground hover:text-foreground transition-colors",
             "cursor-pointer select-none",
-            className
+            className,
           )}
           aria-label={`${count} unread alerts`}
         >

@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, CheckCircle, Clock, Activity, ArrowLeft } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Activity,
+  ArrowLeft,
+} from "lucide-react";
 import { alertsAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -54,8 +60,7 @@ const Alerts = () => {
   const getAlertStyle = (severity) => {
     if (severity === "critical")
       return "border-l-4 border-destructive bg-destructive/5";
-    if (severity === "warning")
-      return "border-l-4 border-warning bg-warning/5";
+    if (severity === "warning") return "border-l-4 border-warning bg-warning/5";
     return "border-l-4 border-primary bg-primary/5";
   };
 
@@ -108,138 +113,146 @@ const Alerts = () => {
       />
 
       <div className="ml-[72px] flex justify-center">
-      <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Health Alerts
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                Monitor and manage your health notifications
-              </p>
-            </div>
-            <Button variant="outline" onClick={() => navigate(-1)} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </div>
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="mb-6 flex space-x-2 border-b border-border">
-          {[
-            { key: "all", label: "All Alerts" },
-            { key: "active", label: "Active" },
-            { key: "resolved", label: "Resolved" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              className={cn(
-                "px-4 py-2 font-medium text-sm transition-colors",
-                filter === tab.key
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Alerts List */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        ) : alerts.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                No Alerts
-              </h3>
-              <p className="text-muted-foreground">
-                {filter === "all"
-                  ? "You don't have any health alerts at the moment."
-                  : filter === "active"
-                    ? "No active alerts. You're all good!"
-                    : "No resolved alerts in your history."}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {alerts.map((alert) => (
-              <Card
-                key={alert._id}
-                className={`${getAlertStyle(alert.severity)} rounded-2xl shadow-sm`}
+        <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">
+                  Health Alerts
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                  Monitor and manage your health notifications
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="gap-2"
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4 flex-1">
-                      <div className="mt-1">{getAlertIcon(alert.severity)}</div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getSeverityBadge(alert.severity)}`}
-                          >
-                            {alert.severity.toUpperCase()}
-                          </span>
-                          {alert.isAcknowledged && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Resolved
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-1">
-                          {alert.title || "Health Alert"}
-                        </h3>
-                        <p className="text-foreground/80 mb-3">{alert.message}</p>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {formatDate(alert.createdAt)}
-                          </div>
-                          {(alert.metricType ||
-                            alert.metricSnapshot?.metricType) && (
-                            <div className="flex items-center">
-                              <Activity className="w-4 h-4 mr-1" />
-                              {alert.metricType ||
-                                alert.metricSnapshot?.metricType}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {!alert.isAcknowledged && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => resolveAlertMutation.mutate(alert._id)}
-                        disabled={resolveAlertMutation.isPending}
-                        className="ml-4"
-                      >
-                        {resolveAlertMutation.isPending ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Mark Resolved
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+            </div>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="mb-6 flex space-x-2 border-b border-border">
+            {[
+              { key: "all", label: "All Alerts" },
+              { key: "active", label: "Active" },
+              { key: "resolved", label: "Resolved" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key)}
+                className={cn(
+                  "px-4 py-2 font-medium text-sm transition-colors",
+                  filter === tab.key
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {tab.label}
+              </button>
             ))}
           </div>
-        )}
-      </div>
+
+          {/* Alerts List */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : alerts.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  No Alerts
+                </h3>
+                <p className="text-muted-foreground">
+                  {filter === "all"
+                    ? "You don't have any health alerts at the moment."
+                    : filter === "active"
+                      ? "No active alerts. You're all good!"
+                      : "No resolved alerts in your history."}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {alerts.map((alert) => (
+                <Card
+                  key={alert._id}
+                  className={`${getAlertStyle(alert.severity)} rounded-2xl shadow-sm`}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-4 flex-1">
+                        <div className="mt-1">
+                          {getAlertIcon(alert.severity)}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getSeverityBadge(alert.severity)}`}
+                            >
+                              {alert.severity.toUpperCase()}
+                            </span>
+                            {alert.isAcknowledged && (
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Resolved
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-lg font-semibold text-foreground mb-1">
+                            {alert.title || "Health Alert"}
+                          </h3>
+                          <p className="text-foreground/80 mb-3">
+                            {alert.message}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <div className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {formatDate(alert.createdAt)}
+                            </div>
+                            {(alert.metricType ||
+                              alert.metricSnapshot?.metricType) && (
+                              <div className="flex items-center">
+                                <Activity className="w-4 h-4 mr-1" />
+                                {alert.metricType ||
+                                  alert.metricSnapshot?.metricType}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {!alert.isAcknowledged && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => resolveAlertMutation.mutate(alert._id)}
+                          disabled={resolveAlertMutation.isPending}
+                          className="ml-4"
+                        >
+                          {resolveAlertMutation.isPending ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Mark Resolved
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

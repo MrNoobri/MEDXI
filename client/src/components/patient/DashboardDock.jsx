@@ -37,7 +37,9 @@ export default function DashboardDock({
   const navItems = role === "provider" ? PROVIDER_NAV : PATIENT_NAV;
 
   return (
-    <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 ${className || ""}`}>
+    <div
+      className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 ${className || ""}`}
+    >
       <Dock
         magnification={60}
         distance={100}

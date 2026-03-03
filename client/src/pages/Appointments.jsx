@@ -73,7 +73,13 @@ const STATUS_COLORS = {
 };
 
 /* ─── Appointment Detail Modal (for patients) ─── */
-const AppointmentModal = ({ appointment, isOpen, onClose, onCancel, isCancelling }) => {
+const AppointmentModal = ({
+  appointment,
+  isOpen,
+  onClose,
+  onCancel,
+  isCancelling,
+}) => {
   if (!isOpen || !appointment) return null;
 
   const provider = appointment.providerId;
@@ -104,7 +110,10 @@ const AppointmentModal = ({ appointment, isOpen, onClose, onCancel, isCancelling
               <div>
                 <p className="text-sm text-muted-foreground">Date & Time</p>
                 <p className="font-medium text-foreground">
-                  {format(new Date(appointment.scheduledAt), "EEEE, MMMM d, yyyy · h:mm a")}
+                  {format(
+                    new Date(appointment.scheduledAt),
+                    "EEEE, MMMM d, yyyy · h:mm a",
+                  )}
                 </p>
               </div>
             </div>
@@ -125,7 +134,8 @@ const AppointmentModal = ({ appointment, isOpen, onClose, onCancel, isCancelling
                 <div>
                   <p className="text-sm text-muted-foreground">Provider</p>
                   <p className="font-medium text-foreground">
-                    Dr. {provider.profile?.firstName} {provider.profile?.lastName}
+                    Dr. {provider.profile?.firstName}{" "}
+                    {provider.profile?.lastName}
                   </p>
                 </div>
               </div>
@@ -145,7 +155,7 @@ const AppointmentModal = ({ appointment, isOpen, onClose, onCancel, isCancelling
               <span
                 className={cn(
                   "px-3 py-1 rounded-full text-xs font-semibold capitalize",
-                  STATUS_COLORS[appointment.status] || STATUS_COLORS.scheduled
+                  STATUS_COLORS[appointment.status] || STATUS_COLORS.scheduled,
                 )}
               >
                 {appointment.status}
@@ -153,7 +163,11 @@ const AppointmentModal = ({ appointment, isOpen, onClose, onCancel, isCancelling
               <span
                 className={cn(
                   "px-3 py-1 rounded-full text-xs font-semibold capitalize",
-                  TYPE_BG[appointment.type]?.replace("border-", "").split(" ").filter(c => !c.startsWith("border")).join(" ") || "bg-muted text-foreground"
+                  TYPE_BG[appointment.type]
+                    ?.replace("border-", "")
+                    .split(" ")
+                    .filter((c) => !c.startsWith("border"))
+                    .join(" ") || "bg-muted text-foreground",
                 )}
               >
                 {appointment.type?.replace("-", " ")}
@@ -162,8 +176,12 @@ const AppointmentModal = ({ appointment, isOpen, onClose, onCancel, isCancelling
 
             {appointment.providerNotes && (
               <div className="p-3 rounded-xl bg-primary/5 border border-primary/20">
-                <p className="text-sm font-medium text-primary mb-1">Provider Notes</p>
-                <p className="text-sm text-foreground/80">{appointment.providerNotes}</p>
+                <p className="text-sm font-medium text-primary mb-1">
+                  Provider Notes
+                </p>
+                <p className="text-sm text-foreground/80">
+                  {appointment.providerNotes}
+                </p>
               </div>
             )}
           </div>
@@ -191,7 +209,12 @@ const AppointmentModal = ({ appointment, isOpen, onClose, onCancel, isCancelling
 };
 
 /* ─── Month View ─── */
-const MonthView = ({ currentDate, appointmentsByDate, onSelectDay, onSelectAppointment }) => {
+const MonthView = ({
+  currentDate,
+  appointmentsByDate,
+  onSelectDay,
+  onSelectAppointment,
+}) => {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart);
@@ -202,7 +225,10 @@ const MonthView = ({ currentDate, appointmentsByDate, onSelectDay, onSelectAppoi
     <div>
       <div className="grid grid-cols-7 border-b border-border">
         {DAY_NAMES.map((name) => (
-          <div key={name} className="p-2 text-center text-xs font-semibold text-muted-foreground uppercase">
+          <div
+            key={name}
+            className="p-2 text-center text-xs font-semibold text-muted-foreground uppercase"
+          >
             {name}
           </div>
         ))}
@@ -220,7 +246,7 @@ const MonthView = ({ currentDate, appointmentsByDate, onSelectDay, onSelectAppoi
               onClick={() => onSelectDay(day)}
               className={cn(
                 "min-h-[100px] border-b border-r border-border p-1.5 cursor-pointer transition-colors hover:bg-secondary/30",
-                !isCurrentMonth && "bg-muted/30"
+                !isCurrentMonth && "bg-muted/30",
               )}
             >
               <div className="flex items-center justify-between mb-1">
@@ -229,24 +255,29 @@ const MonthView = ({ currentDate, appointmentsByDate, onSelectDay, onSelectAppoi
                     "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full",
                     isCurrentDay && "bg-primary text-primary-foreground",
                     !isCurrentMonth && "text-muted-foreground/50",
-                    isCurrentMonth && !isCurrentDay && "text-foreground"
+                    isCurrentMonth && !isCurrentDay && "text-foreground",
                   )}
                 >
                   {format(day, "d")}
                 </span>
                 {dayAppts.length > 0 && (
-                  <span className="text-xs text-muted-foreground">{dayAppts.length}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {dayAppts.length}
+                  </span>
                 )}
               </div>
               <div className="space-y-0.5">
                 {dayAppts.slice(0, 3).map((appt) => (
                   <div
                     key={appt._id}
-                    onClick={(e) => { e.stopPropagation(); onSelectAppointment(appt); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectAppointment(appt);
+                    }}
                     className={cn(
                       "text-xs px-1.5 py-0.5 rounded truncate cursor-pointer border",
                       TYPE_BG[appt.type] || TYPE_BG.consultation,
-                      STATUS_OPACITY[appt.status]
+                      STATUS_OPACITY[appt.status],
                     )}
                   >
                     {format(new Date(appt.scheduledAt), "h:mm a")}{" "}
@@ -256,7 +287,9 @@ const MonthView = ({ currentDate, appointmentsByDate, onSelectDay, onSelectAppoi
                   </div>
                 ))}
                 {dayAppts.length > 3 && (
-                  <div className="text-xs text-muted-foreground pl-1">+{dayAppts.length - 3} more</div>
+                  <div className="text-xs text-muted-foreground pl-1">
+                    +{dayAppts.length - 3} more
+                  </div>
                 )}
               </div>
             </div>
@@ -270,7 +303,10 @@ const MonthView = ({ currentDate, appointmentsByDate, onSelectDay, onSelectAppoi
 /* ─── Week View ─── */
 const WeekView = ({ currentDate, appointmentsByDate, onSelectAppointment }) => {
   const weekStart = startOfWeek(currentDate);
-  const weekDays = eachDayOfInterval({ start: weekStart, end: endOfWeek(currentDate) });
+  const weekDays = eachDayOfInterval({
+    start: weekStart,
+    end: endOfWeek(currentDate),
+  });
 
   return (
     <div className="overflow-x-auto">
@@ -278,26 +314,52 @@ const WeekView = ({ currentDate, appointmentsByDate, onSelectAppointment }) => {
         <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border">
           <div className="p-2" />
           {weekDays.map((day) => (
-            <div key={day.toISOString()} className={cn("p-2 text-center border-l border-border", isToday(day) && "bg-primary/10")}>
-              <div className="text-xs font-semibold text-muted-foreground uppercase">{format(day, "EEE")}</div>
-              <div className={cn("text-lg font-bold mt-0.5", isToday(day) ? "text-primary" : "text-foreground")}>
+            <div
+              key={day.toISOString()}
+              className={cn(
+                "p-2 text-center border-l border-border",
+                isToday(day) && "bg-primary/10",
+              )}
+            >
+              <div className="text-xs font-semibold text-muted-foreground uppercase">
+                {format(day, "EEE")}
+              </div>
+              <div
+                className={cn(
+                  "text-lg font-bold mt-0.5",
+                  isToday(day) ? "text-primary" : "text-foreground",
+                )}
+              >
                 {format(day, "d")}
               </div>
             </div>
           ))}
         </div>
         {HOURS.map((hour) => (
-          <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border">
+          <div
+            key={hour}
+            className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border"
+          >
             <div className="p-1 text-xs text-muted-foreground text-right pr-2 py-2">
-              {hour === 12 ? "12 PM" : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+              {hour === 12
+                ? "12 PM"
+                : hour > 12
+                  ? `${hour - 12} PM`
+                  : `${hour} AM`}
             </div>
             {weekDays.map((day) => {
               const key = format(day, "yyyy-MM-dd");
               const dayAppts = (appointmentsByDate[key] || []).filter(
-                (a) => getHours(new Date(a.scheduledAt)) === hour
+                (a) => getHours(new Date(a.scheduledAt)) === hour,
               );
               return (
-                <div key={`${key}-${hour}`} className={cn("border-l border-border min-h-[48px] p-0.5 relative", isToday(day) && "bg-primary/5")}>
+                <div
+                  key={`${key}-${hour}`}
+                  className={cn(
+                    "border-l border-border min-h-[48px] p-0.5 relative",
+                    isToday(day) && "bg-primary/5",
+                  )}
+                >
                   {dayAppts.map((appt) => (
                     <div
                       key={appt._id}
@@ -305,11 +367,15 @@ const WeekView = ({ currentDate, appointmentsByDate, onSelectAppointment }) => {
                       className={cn(
                         "text-xs px-1.5 py-1 rounded border cursor-pointer mb-0.5 truncate",
                         TYPE_BG[appt.type] || TYPE_BG.consultation,
-                        STATUS_OPACITY[appt.status]
+                        STATUS_OPACITY[appt.status],
                       )}
                     >
-                      <span className="font-medium">{format(new Date(appt.scheduledAt), "h:mm")}</span>{" "}
-                      {appt.providerId?.profile?.lastName ? `Dr. ${appt.providerId.profile.lastName}` : ""}
+                      <span className="font-medium">
+                        {format(new Date(appt.scheduledAt), "h:mm")}
+                      </span>{" "}
+                      {appt.providerId?.profile?.lastName
+                        ? `Dr. ${appt.providerId.profile.lastName}`
+                        : ""}
                     </div>
                   ))}
                 </div>
@@ -324,7 +390,9 @@ const WeekView = ({ currentDate, appointmentsByDate, onSelectAppointment }) => {
 
 /* ─── Day View ─── */
 const DayView = ({ currentDate, appointments, onSelectAppointment }) => {
-  const sorted = [...appointments].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+  const sorted = [...appointments].sort(
+    (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt),
+  );
   const apptsByHour = {};
   sorted.forEach((a) => {
     const h = getHours(new Date(a.scheduledAt));
@@ -334,20 +402,41 @@ const DayView = ({ currentDate, appointments, onSelectAppointment }) => {
 
   return (
     <div>
-      <div className={cn("p-4 border-b border-border text-center", isToday(currentDate) && "bg-primary/10")}>
-        <div className="text-sm font-semibold text-muted-foreground uppercase">{format(currentDate, "EEEE")}</div>
-        <div className={cn("text-3xl font-bold", isToday(currentDate) ? "text-primary" : "text-foreground")}>
+      <div
+        className={cn(
+          "p-4 border-b border-border text-center",
+          isToday(currentDate) && "bg-primary/10",
+        )}
+      >
+        <div className="text-sm font-semibold text-muted-foreground uppercase">
+          {format(currentDate, "EEEE")}
+        </div>
+        <div
+          className={cn(
+            "text-3xl font-bold",
+            isToday(currentDate) ? "text-primary" : "text-foreground",
+          )}
+        >
           {format(currentDate, "d")}
         </div>
-        <div className="text-sm text-muted-foreground">{appointments.length} appointment(s)</div>
+        <div className="text-sm text-muted-foreground">
+          {appointments.length} appointment(s)
+        </div>
       </div>
       <div>
         {HOURS.map((hour) => {
           const hourAppts = apptsByHour[hour] || [];
           return (
-            <div key={hour} className="flex border-b border-border min-h-[60px]">
+            <div
+              key={hour}
+              className="flex border-b border-border min-h-[60px]"
+            >
               <div className="w-16 p-2 text-xs text-muted-foreground text-right pr-3 shrink-0 py-3">
-                {hour === 12 ? "12 PM" : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+                {hour === 12
+                  ? "12 PM"
+                  : hour > 12
+                    ? `${hour - 12} PM`
+                    : `${hour} AM`}
               </div>
               <div className="flex-1 border-l border-border p-1 space-y-1">
                 {hourAppts.map((appt) => (
@@ -357,17 +446,19 @@ const DayView = ({ currentDate, appointments, onSelectAppointment }) => {
                     className={cn(
                       "p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md",
                       TYPE_BG[appt.type] || TYPE_BG.consultation,
-                      STATUS_OPACITY[appt.status]
+                      STATUS_OPACITY[appt.status],
                     )}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-sm">
-                        {format(new Date(appt.scheduledAt), "h:mm a")} - {appt.duration || 30}min
+                        {format(new Date(appt.scheduledAt), "h:mm a")} -{" "}
+                        {appt.duration || 30}min
                       </span>
                       <span
                         className={cn(
                           "text-xs px-2 py-0.5 rounded-full font-medium",
-                          STATUS_COLORS[appt.status] || "bg-muted text-foreground"
+                          STATUS_COLORS[appt.status] ||
+                            "bg-muted text-foreground",
                         )}
                       >
                         {appt.status}
@@ -380,7 +471,8 @@ const DayView = ({ currentDate, appointments, onSelectAppointment }) => {
                       </div>
                       <div>
                         <p className="text-sm font-medium">
-                          Dr. {appt.providerId?.profile?.firstName} {appt.providerId?.profile?.lastName}
+                          Dr. {appt.providerId?.profile?.firstName}{" "}
+                          {appt.providerId?.profile?.lastName}
                         </p>
                         <p className="text-xs opacity-75">{appt.reason}</p>
                       </div>
@@ -413,16 +505,25 @@ const Appointments = () => {
       const me = endOfMonth(currentDate);
       return { startDate: startOfWeek(ms), endDate: endOfWeek(me) };
     } else if (viewMode === "week") {
-      return { startDate: startOfWeek(currentDate), endDate: endOfWeek(currentDate) };
+      return {
+        startDate: startOfWeek(currentDate),
+        endDate: endOfWeek(currentDate),
+      };
     }
-    const ds = new Date(currentDate); ds.setHours(0, 0, 0, 0);
-    const de = new Date(currentDate); de.setHours(23, 59, 59, 999);
+    const ds = new Date(currentDate);
+    ds.setHours(0, 0, 0, 0);
+    const de = new Date(currentDate);
+    de.setHours(23, 59, 59, 999);
     return { startDate: ds, endDate: de };
   }, [currentDate, viewMode]);
 
   // Fetch appointments for visible range
   const { data: appointments } = useQuery({
-    queryKey: ["calendarAppointments", dateRange.startDate.toISOString(), dateRange.endDate.toISOString()],
+    queryKey: [
+      "calendarAppointments",
+      dateRange.startDate.toISOString(),
+      dateRange.endDate.toISOString(),
+    ],
     queryFn: async () => {
       const response = await appointmentsAPI.getAll({
         startDate: dateRange.startDate.toISOString(),
@@ -495,7 +596,9 @@ const Appointments = () => {
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-foreground">Appointments</h2>
+              <h2 className="text-3xl font-bold text-foreground">
+                Appointments
+              </h2>
               <p className="text-muted-foreground mt-1">
                 Manage your healthcare appointments
               </p>
@@ -513,7 +616,11 @@ const Appointments = () => {
               <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentDate(new Date())}
+              >
                 Today
               </Button>
               <Button variant="outline" size="sm" onClick={() => navigate(1)}>
@@ -542,7 +649,10 @@ const Appointments = () => {
                 <MonthView
                   currentDate={currentDate}
                   appointmentsByDate={appointmentsByDate}
-                  onSelectDay={(d) => { setCurrentDate(d); setViewMode("day"); }}
+                  onSelectDay={(d) => {
+                    setCurrentDate(d);
+                    setViewMode("day");
+                  }}
                   onSelectAppointment={setSelectedAppointment}
                 />
               )}
@@ -556,7 +666,9 @@ const Appointments = () => {
               {viewMode === "day" && (
                 <DayView
                   currentDate={currentDate}
-                  appointments={appointmentsByDate[format(currentDate, "yyyy-MM-dd")] || []}
+                  appointments={
+                    appointmentsByDate[format(currentDate, "yyyy-MM-dd")] || []
+                  }
                   onSelectAppointment={setSelectedAppointment}
                 />
               )}

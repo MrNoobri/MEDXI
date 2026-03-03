@@ -17,12 +17,12 @@ export function useAutoResizeTextarea({ minHeight, maxHeight }) {
 
       const newHeight = Math.max(
         minHeight,
-        Math.min(textarea.scrollHeight, maxHeight ?? Infinity)
+        Math.min(textarea.scrollHeight, maxHeight ?? Infinity),
       );
 
       textarea.style.height = `${newHeight}px`;
     },
-    [minHeight, maxHeight]
+    [minHeight, maxHeight],
   );
 
   useEffect(() => {

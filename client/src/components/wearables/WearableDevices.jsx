@@ -56,7 +56,15 @@ const generateDemoMetrics = () => {
 };
 
 /* ─── Single Metric Live Card ─── */
-const LiveMetricCard = ({ icon: Icon, label, value, unit, color, isCritical, pulse }) => (
+const LiveMetricCard = ({
+  icon: Icon,
+  label,
+  value,
+  unit,
+  color,
+  isCritical,
+  pulse,
+}) => (
   <motion.div
     layout
     initial={{ opacity: 0, scale: 0.95 }}
@@ -65,7 +73,7 @@ const LiveMetricCard = ({ icon: Icon, label, value, unit, color, isCritical, pul
       "relative rounded-2xl p-5 transition-all duration-300 overflow-hidden",
       isCritical
         ? "bg-destructive/8 ring-2 ring-destructive/40"
-        : "bg-card shadow-md shadow-black/5"
+        : "bg-card shadow-md shadow-black/5",
     )}
   >
     {isCritical && (
@@ -80,7 +88,7 @@ const LiveMetricCard = ({ icon: Icon, label, value, unit, color, isCritical, pul
         <div
           className={cn(
             "w-9 h-9 rounded-xl flex items-center justify-center",
-            isCritical ? "bg-destructive/15" : "bg-primary/10"
+            isCritical ? "bg-destructive/15" : "bg-primary/10",
           )}
         >
           <Icon
@@ -99,7 +107,7 @@ const LiveMetricCard = ({ icon: Icon, label, value, unit, color, isCritical, pul
         <span
           className={cn(
             "text-3xl font-bold tabular-nums",
-            isCritical ? "text-destructive" : "text-foreground"
+            isCritical ? "text-destructive" : "text-foreground",
           )}
         >
           {value}
@@ -120,7 +128,12 @@ const LiveMetricCard = ({ icon: Icon, label, value, unit, color, isCritical, pul
 );
 
 /* ─── Main WearableDevices Component ─── */
-const WearableDevices = ({ isSimulating, simulatorData, onStartSimulator, onStopSimulator }) => {
+const WearableDevices = ({
+  isSimulating,
+  simulatorData,
+  onStartSimulator,
+  onStopSimulator,
+}) => {
   const [demoData, setDemoData] = useState(null);
   const [totalSteps, setTotalSteps] = useState(0);
   const [totalCalories, setTotalCalories] = useState(0);
@@ -162,12 +175,42 @@ const WearableDevices = ({ isSimulating, simulatorData, onStartSimulator, onStop
 
       // Push to server (best-effort)
       const serverMetrics = [
-        { metricType: "heartRate", value: metrics.heartRate, unit: "bpm", source: "simulator" },
-        { metricType: "oxygenSaturation", value: metrics.spo2, unit: "%", source: "simulator" },
-        { metricType: "bloodPressure", value: metrics.bloodPressure, unit: "mmHg", source: "simulator" },
-        { metricType: "bloodGlucose", value: metrics.bloodGlucose, unit: "mg/dL", source: "simulator" },
-        { metricType: "steps", value: metrics.steps, unit: "steps", source: "simulator" },
-        { metricType: "calories", value: metrics.calories, unit: "kcal", source: "simulator" },
+        {
+          metricType: "heartRate",
+          value: metrics.heartRate,
+          unit: "bpm",
+          source: "simulator",
+        },
+        {
+          metricType: "oxygenSaturation",
+          value: metrics.spo2,
+          unit: "%",
+          source: "simulator",
+        },
+        {
+          metricType: "bloodPressure",
+          value: metrics.bloodPressure,
+          unit: "mmHg",
+          source: "simulator",
+        },
+        {
+          metricType: "bloodGlucose",
+          value: metrics.bloodGlucose,
+          unit: "mg/dL",
+          source: "simulator",
+        },
+        {
+          metricType: "steps",
+          value: metrics.steps,
+          unit: "steps",
+          source: "simulator",
+        },
+        {
+          metricType: "calories",
+          value: metrics.calories,
+          unit: "kcal",
+          source: "simulator",
+        },
       ];
       serverMetrics.forEach((m) => healthMetricsAPI.create(m).catch(() => {}));
     };
@@ -192,7 +235,8 @@ const WearableDevices = ({ isSimulating, simulatorData, onStartSimulator, onStop
                   Demo Wearable Simulator
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Streams real-time vitals including occasional critical readings
+                  Streams real-time vitals including occasional critical
+                  readings
                 </p>
               </div>
             </div>
@@ -202,7 +246,7 @@ const WearableDevices = ({ isSimulating, simulatorData, onStartSimulator, onStop
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium",
                   isSimulating
                     ? "bg-emerald-500/15 text-emerald-600"
-                    : "bg-muted text-muted-foreground"
+                    : "bg-muted text-muted-foreground",
                 )}
               >
                 {isSimulating ? (
@@ -353,7 +397,8 @@ const WearableDevices = ({ isSimulating, simulatorData, onStartSimulator, onStop
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">
-                  These readings trigger health alerts visible on the Alerts page.
+                  These readings trigger health alerts visible on the Alerts
+                  page.
                 </p>
               </CardContent>
             </Card>

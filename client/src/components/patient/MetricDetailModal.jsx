@@ -42,14 +42,16 @@ export default function MetricDetailModal({
 
   // Calculate ring progress for goal-based metrics
   const numericValue =
-    typeof value === "object" ? value?.systolic ?? 0 : Number(value) || 0;
-  const ringProgress = config.goal ? Math.min(numericValue / config.goal, 1) : 0;
+    typeof value === "object" ? (value?.systolic ?? 0) : Number(value) || 0;
+  const ringProgress = config.goal
+    ? Math.min(numericValue / config.goal, 1)
+    : 0;
 
   // Determine trend from history
   const trend = (() => {
     if (!metricHistory || metricHistory.length < 2) return null;
     const sorted = [...metricHistory].sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
     );
     const latest =
       typeof sorted[0].value === "object"
@@ -121,7 +123,12 @@ export default function MetricDetailModal({
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1, x: 0 }}
             exit={{ scale: 0.85, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 26, delay: 0.05 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 26,
+              delay: 0.05,
+            }}
           >
             {/* ── Left: Metric Summary Card ── */}
             <motion.div
@@ -129,7 +136,12 @@ export default function MetricDetailModal({
               initial={{ x: 80, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 80, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 28, delay: 0.1 }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 28,
+                delay: 0.1,
+              }}
             >
               {/* Close button */}
               <button
@@ -158,9 +170,15 @@ export default function MetricDetailModal({
               ) : (
                 <div
                   className="w-[160px] h-[160px] rounded-full flex flex-col items-center justify-center mb-4 border-[10px]"
-                  style={{ borderColor: `${config.color}30`, backgroundColor: `${config.color}08` }}
+                  style={{
+                    borderColor: `${config.color}30`,
+                    backgroundColor: `${config.color}08`,
+                  }}
                 >
-                  <Icon className="w-7 h-7 mb-1" style={{ color: config.color }} />
+                  <Icon
+                    className="w-7 h-7 mb-1"
+                    style={{ color: config.color }}
+                  />
                   <p className="text-3xl font-bold text-foreground leading-none">
                     {displayValue}
                   </p>
@@ -181,13 +199,11 @@ export default function MetricDetailModal({
                     "mt-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium",
                     trend === "up" && "bg-emerald-500/10 text-emerald-500",
                     trend === "down" && "bg-red-500/10 text-red-500",
-                    trend === "flat" && "bg-muted text-muted-foreground"
+                    trend === "flat" && "bg-muted text-muted-foreground",
                   )}
                 >
                   {trend === "up" && <TrendingUp className="w-3.5 h-3.5" />}
-                  {trend === "down" && (
-                    <TrendingDown className="w-3.5 h-3.5" />
-                  )}
+                  {trend === "down" && <TrendingDown className="w-3.5 h-3.5" />}
                   {trend === "flat" && <Minus className="w-3.5 h-3.5" />}
                   {trend === "up"
                     ? "Trending up"
@@ -229,7 +245,12 @@ export default function MetricDetailModal({
               initial={{ x: 60, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 60, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 280, damping: 26, delay: 0.2 }}
+              transition={{
+                type: "spring",
+                stiffness: 280,
+                damping: 26,
+                delay: 0.2,
+              }}
             >
               {/* Close button (desktop) */}
               <button

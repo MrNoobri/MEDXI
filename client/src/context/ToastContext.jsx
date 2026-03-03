@@ -9,31 +9,44 @@ let toastId = 0;
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback(({ message, type = "success", duration = 3000 }) => {
-    const id = ++toastId;
-    setToasts((prev) => [...prev, { id, message, type, duration, isVisible: true }]);
+  const addToast = useCallback(
+    ({ message, type = "success", duration = 3000 }) => {
+      const id = ++toastId;
+      setToasts((prev) => [
+        ...prev,
+        { id, message, type, duration, isVisible: true },
+      ]);
 
-    // Auto-remove after duration + exit animation
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, duration + 500);
-  }, []);
+      // Auto-remove after duration + exit animation
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, duration + 500);
+    },
+    [],
+  );
 
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const toast = useCallback({
-    success: (message, duration) => addToast({ message, type: "success", duration }),
-    error: (message, duration) => addToast({ message, type: "error", duration }),
-    warning: (message, duration) => addToast({ message, type: "warning", duration }),
-    info: (message, duration) => addToast({ message, type: "info", duration }),
-  }, [addToast]);
+  const toast = useCallback(
+    {
+      success: (message, duration) =>
+        addToast({ message, type: "success", duration }),
+      error: (message, duration) =>
+        addToast({ message, type: "error", duration }),
+      warning: (message, duration) =>
+        addToast({ message, type: "warning", duration }),
+      info: (message, duration) =>
+        addToast({ message, type: "info", duration }),
+    },
+    [addToast],
+  );
 
   // Make toast callable directly
   const toastFn = Object.assign(
     (message, type, duration) => addToast({ message, type, duration }),
-    toast
+    toast,
   );
 
   return (

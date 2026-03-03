@@ -53,8 +53,7 @@ const METRIC_CONFIG = {
     icon: Droplets,
     color: "hsl(340, 82%, 52%)",
     goal: null,
-    format: (v) =>
-      typeof v === "object" ? `${v.systolic}/${v.diastolic}` : v,
+    format: (v) => (typeof v === "object" ? `${v.systolic}/${v.diastolic}` : v),
   },
   oxygenSaturation: {
     label: "SpO2",
@@ -109,12 +108,11 @@ export default function FitMetricTile({
   };
 
   const Icon = config.icon;
-  const displayValue =
-    value != null ? config.format(value) : "--";
+  const displayValue = value != null ? config.format(value) : "--";
 
   // Calculate progress towards goal for the ring
   const numericValue =
-    typeof value === "object" ? value?.systolic ?? 0 : Number(value) || 0;
+    typeof value === "object" ? (value?.systolic ?? 0) : Number(value) || 0;
   const progress = config.goal ? Math.min(numericValue / config.goal, 1) : 0;
 
   return (

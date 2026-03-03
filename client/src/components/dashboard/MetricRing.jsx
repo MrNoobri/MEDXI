@@ -16,7 +16,10 @@ export default function MetricRing({
   const dashOffset = circumference * (1 - normalized);
 
   return (
-    <div className={cn("inline-flex relative", className)} style={{ width: size, height: size }}>
+    <div
+      className={cn("inline-flex relative", className)}
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
           cx={size / 2}

@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import {
   Activity,
   AlertTriangle,
@@ -40,7 +45,8 @@ const AlertsSection = ({ alertsData, onViewAllAlerts, theme }) => {
   const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
   const highestSeverityAlert = alertsData.reduce((acc, current) => {
     if (!acc) return current;
-    return (severityRank[current?.severity] || 0) > (severityRank[acc?.severity] || 0)
+    return (severityRank[current?.severity] || 0) >
+      (severityRank[acc?.severity] || 0)
       ? current
       : acc;
   }, null);
@@ -48,16 +54,51 @@ const AlertsSection = ({ alertsData, onViewAllAlerts, theme }) => {
   const severity = highestSeverityAlert?.severity || "medium";
 
   const alertStyles = {
-    medical: { card: "border-l-4 border-danger/80 bg-danger-light/20", title: "text-danger-dark", badge: "bg-danger text-white", button: "bg-danger text-white hover:bg-danger-dark" },
-    midnight: { card: "border-l-4 border-primary/70 bg-primary/15", title: "text-foreground", badge: "bg-primary text-primary-foreground", button: "bg-primary text-primary-foreground hover:opacity-90" },
-    emerald: { card: "border-l-4 border-warning bg-warning-light/35", title: "text-warning-dark", badge: "bg-warning text-white", button: "bg-warning text-white hover:bg-warning-dark" },
+    medical: {
+      card: "border-l-4 border-danger/80 bg-danger-light/20",
+      title: "text-danger-dark",
+      badge: "bg-danger text-white",
+      button: "bg-danger text-white hover:bg-danger-dark",
+    },
+    midnight: {
+      card: "border-l-4 border-primary/70 bg-primary/15",
+      title: "text-foreground",
+      badge: "bg-primary text-primary-foreground",
+      button: "bg-primary text-primary-foreground hover:opacity-90",
+    },
+    emerald: {
+      card: "border-l-4 border-warning bg-warning-light/35",
+      title: "text-warning-dark",
+      badge: "bg-warning text-white",
+      button: "bg-warning text-white hover:bg-warning-dark",
+    },
   };
 
   const severityStyles = {
-    critical: { card: "ring-1 ring-danger/40", badge: "bg-danger text-white", title: "text-danger-dark", emphasis: "Critical" },
-    high: { card: "ring-1 ring-warning/40", badge: "bg-warning text-white", title: "text-warning-dark", emphasis: "High" },
-    medium: { card: "ring-1 ring-primary/30", badge: "bg-primary text-primary-foreground", title: "text-primary", emphasis: "Medium" },
-    low: { card: "ring-1 ring-secondary/45", badge: "bg-secondary text-secondary-foreground", title: "text-foreground", emphasis: "Low" },
+    critical: {
+      card: "ring-1 ring-danger/40",
+      badge: "bg-danger text-white",
+      title: "text-danger-dark",
+      emphasis: "Critical",
+    },
+    high: {
+      card: "ring-1 ring-warning/40",
+      badge: "bg-warning text-white",
+      title: "text-warning-dark",
+      emphasis: "High",
+    },
+    medium: {
+      card: "ring-1 ring-primary/30",
+      badge: "bg-primary text-primary-foreground",
+      title: "text-primary",
+      emphasis: "Medium",
+    },
+    low: {
+      card: "ring-1 ring-secondary/45",
+      badge: "bg-secondary text-secondary-foreground",
+      title: "text-foreground",
+      emphasis: "Low",
+    },
   };
 
   const styles = alertStyles[theme] || alertStyles.medical;
@@ -69,7 +110,13 @@ const AlertsSection = ({ alertsData, onViewAllAlerts, theme }) => {
         <CardContent className="p-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className={cn("rounded-full p-1.5 mt-0.5", styles.badge, level.badge)}>
+              <div
+                className={cn(
+                  "rounded-full p-1.5 mt-0.5",
+                  styles.badge,
+                  level.badge,
+                )}
+              >
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div>
@@ -84,7 +131,11 @@ const AlertsSection = ({ alertsData, onViewAllAlerts, theme }) => {
                 </p>
               </div>
             </div>
-            <Button size="sm" onClick={onViewAllAlerts} className={styles.button}>
+            <Button
+              size="sm"
+              onClick={onViewAllAlerts}
+              className={styles.button}
+            >
               View All Alerts
             </Button>
           </div>
@@ -96,7 +147,8 @@ const AlertsSection = ({ alertsData, onViewAllAlerts, theme }) => {
 
 /* ──── Chart Detail Modal ──── */
 const ChartSection = ({ selectedMetric, metricHistory, onClose }) => {
-  if (!selectedMetric || !metricHistory || metricHistory.length === 0) return null;
+  if (!selectedMetric || !metricHistory || metricHistory.length === 0)
+    return null;
   return (
     <div className="mb-8">
       <Card>
@@ -104,7 +156,9 @@ const ChartSection = ({ selectedMetric, metricHistory, onClose }) => {
           <CardTitle className="text-xl">
             {selectedMetric.replace(/([A-Z])/g, " $1").trim()} - Last 7 Days
           </CardTitle>
-          <Button variant="outline" size="sm" onClick={onClose}>Close</Button>
+          <Button variant="outline" size="sm" onClick={onClose}>
+            Close
+          </Button>
         </CardHeader>
         <CardContent>
           <MetricChart data={metricHistory} metricType={selectedMetric} />
@@ -135,7 +189,10 @@ const AIAssistantSection = () => {
 
     try {
       const response = await chatbotAPI.sendMessage(text);
-      const reply = response.data?.data?.reply || response.data?.reply || "I'm not sure how to respond to that.";
+      const reply =
+        response.data?.data?.reply ||
+        response.data?.reply ||
+        "I'm not sure how to respond to that.";
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: reply, timestamp: new Date() },
@@ -143,7 +200,11 @@ const AIAssistantSection = () => {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Sorry, I'm having trouble connecting right now.", timestamp: new Date() },
+        {
+          role: "assistant",
+          content: "Sorry, I'm having trouble connecting right now.",
+          timestamp: new Date(),
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -158,8 +219,12 @@ const AIAssistantSection = () => {
         className="space-y-6"
       >
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-foreground mb-2">MEDXI AI Assistant</h2>
-          <p className="text-muted-foreground">Ask me anything about your health</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">
+            MEDXI AI Assistant
+          </h2>
+          <p className="text-muted-foreground">
+            Ask me anything about your health
+          </p>
         </div>
 
         {/* Chat Messages */}
@@ -171,7 +236,7 @@ const AIAssistantSection = () => {
                   key={i}
                   className={cn(
                     "flex",
-                    msg.role === "user" ? "justify-end" : "justify-start"
+                    msg.role === "user" ? "justify-end" : "justify-start",
                   )}
                 >
                   <div
@@ -179,7 +244,7 @@ const AIAssistantSection = () => {
                       "max-w-[80%] rounded-2xl px-4 py-3 text-sm",
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-muted text-foreground rounded-bl-md"
+                        : "bg-muted text-foreground rounded-bl-md",
                     )}
                   >
                     {msg.content}
@@ -248,7 +313,11 @@ const PatientDashboard = () => {
     // Phase 2: Welcome text appears, hold for 1.8s then exit
     const t2 = setTimeout(() => setSplashPhase("done"), 3200);
     const t3 = setTimeout(() => setShowSplash(false), 3800);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, [showSplash]);
 
   // ── Track when user scrolls past the hero ──
@@ -348,10 +417,30 @@ const PatientDashboard = () => {
 
       try {
         const metrics = [
-          { metricType: "heartRate", value: heartRate, unit: "bpm", source: "simulator" },
-          { metricType: "oxygenSaturation", value: spo2, unit: "%", source: "simulator" },
-          { metricType: "bloodPressure", value: bp, unit: "mmHg", source: "simulator" },
-          { metricType: "steps", value: simulatorData.steps + newSteps, unit: "steps", source: "simulator" },
+          {
+            metricType: "heartRate",
+            value: heartRate,
+            unit: "bpm",
+            source: "simulator",
+          },
+          {
+            metricType: "oxygenSaturation",
+            value: spo2,
+            unit: "%",
+            source: "simulator",
+          },
+          {
+            metricType: "bloodPressure",
+            value: bp,
+            unit: "mmHg",
+            source: "simulator",
+          },
+          {
+            metricType: "steps",
+            value: simulatorData.steps + newSteps,
+            unit: "steps",
+            source: "simulator",
+          },
         ];
         for (const m of metrics) await healthMetricsAPI.create(m);
         refetchMetrics();
@@ -364,20 +453,30 @@ const PatientDashboard = () => {
       updateMetrics();
       interval = setInterval(updateMetrics, 30000);
     }
-    return () => { if (interval) clearInterval(interval); };
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isSimulating]);
 
   const startSimulator = () => setIsSimulating(true);
   const stopSimulator = () => {
     setIsSimulating(false);
-    setSimulatorData({ heartRate: null, steps: 0, spo2: null, bloodPressure: null, lastUpdate: null });
+    setSimulatorData({
+      heartRate: null,
+      steps: 0,
+      spo2: null,
+      bloodPressure: null,
+      lastUpdate: null,
+    });
   };
 
   // ── Dock tab handler ──
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setTimeout(() => {
-      document.getElementById("patient-content")?.scrollIntoView({ behavior: "smooth" });
+      document
+        .getElementById("patient-content")
+        ?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
@@ -389,7 +488,17 @@ const PatientDashboard = () => {
   };
 
   // ── Metric tiles config ──
-  const defaultMetricKeys = ["heartRate", "steps", "calories", "sleep", "oxygenSaturation", "distance", "bloodGlucose", "weight", "bloodPressure"];
+  const defaultMetricKeys = [
+    "heartRate",
+    "steps",
+    "calories",
+    "sleep",
+    "oxygenSaturation",
+    "distance",
+    "bloodGlucose",
+    "weight",
+    "bloodPressure",
+  ];
   const METRIC_ORDER_KEY = "medxi_metric_order";
   const [metricOrder, setMetricOrder] = useState(() => {
     try {
@@ -397,7 +506,11 @@ const PatientDashboard = () => {
       if (saved) {
         const parsed = JSON.parse(saved);
         // Validate: must contain exactly the same keys
-        if (Array.isArray(parsed) && parsed.length === defaultMetricKeys.length && defaultMetricKeys.every((k) => parsed.includes(k))) {
+        if (
+          Array.isArray(parsed) &&
+          parsed.length === defaultMetricKeys.length &&
+          defaultMetricKeys.every((k) => parsed.includes(k))
+        ) {
           return parsed;
         }
       }
@@ -413,7 +526,9 @@ const PatientDashboard = () => {
     const newOrder = sorted.map((item) => item.i);
     setMetricOrder((prev) => {
       if (prev.join() === newOrder.join()) return prev;
-      try { localStorage.setItem(METRIC_ORDER_KEY, JSON.stringify(newOrder)); } catch {}
+      try {
+        localStorage.setItem(METRIC_ORDER_KEY, JSON.stringify(newOrder));
+      } catch {}
       return newOrder;
     });
   }, []);
@@ -493,7 +608,11 @@ const PatientDashboard = () => {
                     ? { opacity: 1, y: 0, scale: 1 }
                     : { opacity: 0, y: 30, scale: 0.8 }
                 }
-                transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.3,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
               >
                 <div className="flex items-center gap-4">
                   <motion.div
@@ -527,15 +646,26 @@ const PatientDashboard = () => {
       </AnimatePresence>
 
       {/* ── Full Hero ── */}
-      <div ref={heroRef} className="h-screen" style={{ scrollSnapAlign: "start" }}>
+      <div
+        ref={heroRef}
+        className="h-screen"
+        style={{ scrollSnapAlign: "start" }}
+      >
         <PatientHero userName={firstName} heroRef={heroRef} />
       </div>
 
       {/* ── Main Dashboard Content ── */}
       <motion.div
         id="patient-content"
-        className={cn("relative z-10 min-h-screen pb-16 transition-[margin] duration-300", pastHero ? "ml-[72px]" : "ml-0")}
-        style={{ opacity: dashboardOpacity, y: dashboardY, scrollSnapAlign: "start" }}
+        className={cn(
+          "relative z-10 min-h-screen pb-16 transition-[margin] duration-300",
+          pastHero ? "ml-[72px]" : "ml-0",
+        )}
+        style={{
+          opacity: dashboardOpacity,
+          y: dashboardY,
+          scrollSnapAlign: "start",
+        }}
       >
         {/* Animated path lines behind dashboard */}
         <BackgroundPaths className="opacity-30 fixed inset-0 z-0 pointer-events-none" />
@@ -551,7 +681,11 @@ const PatientDashboard = () => {
                 {activeTab === "wearables" && "Wearable Devices"}
               </h2>
             </div>
-            <Button size="sm" onClick={() => setShowAddModal(true)} className="gap-2">
+            <Button
+              size="sm"
+              onClick={() => setShowAddModal(true)}
+              className="gap-2"
+            >
               <Plus className="h-4 w-4" />
               Track Data
             </Button>
@@ -578,17 +712,37 @@ const PatientDashboard = () => {
                     compactType="vertical"
                     isResizable={false}
                     persistLayout={false}
-                    onDragStart={() => { isDragging.current = true; }}
-                    onDragStop={() => { setTimeout(() => { isDragging.current = false; }, 200); }}
+                    onDragStart={() => {
+                      isDragging.current = true;
+                    }}
+                    onDragStop={() => {
+                      setTimeout(() => {
+                        isDragging.current = false;
+                      }, 200);
+                    }}
                     onLayoutChange={handleMetricLayoutChange}
                   >
                     {metricOrder.map((key, i) => (
-                      <div key={key} data-grid={{ x: i % 3, y: Math.floor(i / 3), w: 1, h: 1, minW: 1, maxW: 1, minH: 1, maxH: 1 }}>
+                      <div
+                        key={key}
+                        data-grid={{
+                          x: i % 3,
+                          y: Math.floor(i / 3),
+                          w: 1,
+                          h: 1,
+                          minW: 1,
+                          maxW: 1,
+                          minH: 1,
+                          maxH: 1,
+                        }}
+                      >
                         <div className="h-full cursor-grab active:cursor-grabbing">
                           <FitMetricTile
                             metricType={key}
                             value={latestMetrics?.[key]?.value}
-                            onClick={() => { if (!isDragging.current) setSelectedMetric(key); }}
+                            onClick={() => {
+                              if (!isDragging.current) setSelectedMetric(key);
+                            }}
                           />
                         </div>
                       </div>
@@ -614,7 +768,9 @@ const PatientDashboard = () => {
           {activeTab === "activity" && (
             <div className="space-y-8">
               <section>
-                <h3 className="text-lg font-semibold text-foreground mb-4">Metric Tiles</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">
+                  Metric Tiles
+                </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {defaultMetricKeys.map((key) => (
                     <FitMetricTile
@@ -690,8 +846,6 @@ const PatientDashboard = () => {
         visible={pastHero}
         onClick={() => setShowChatbot(true)}
       />
-
-
 
       {/* ── Modals ── */}
       <AddMetricModal

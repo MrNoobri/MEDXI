@@ -10,7 +10,14 @@ import {
   Cell,
   ReferenceLine,
 } from "recharts";
-import { format, subDays, startOfDay, isSameDay, startOfHour, getHours } from "date-fns";
+import {
+  format,
+  subDays,
+  startOfDay,
+  isSameDay,
+  startOfHour,
+  getHours,
+} from "date-fns";
 import { cn } from "@/lib/utils";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -25,11 +32,7 @@ const AVG_METRICS = new Set([
 ]);
 
 // Cumulative metrics — multiple readings/day represent running totals, use max
-const CUMULATIVE_METRICS = new Set([
-  "steps",
-  "calories",
-  "distance",
-]);
+const CUMULATIVE_METRICS = new Set(["steps", "calories", "distance"]);
 
 /**
  * Activity bar chart supporting day (hourly), week (daily), and month (daily) views.
@@ -47,7 +50,10 @@ export default function WeeklyBarChart({
   const isCumulative = CUMULATIVE_METRICS.has(metricType);
 
   const extractValue = (m) => {
-    const v = typeof m.value === "object" ? m.value.value ?? m.value.systolic : m.value;
+    const v =
+      typeof m.value === "object"
+        ? (m.value.value ?? m.value.systolic)
+        : m.value;
     return Number(v) || 0;
   };
 
@@ -89,7 +95,9 @@ export default function WeeklyBarChart({
       // Daily buckets for last 30 days
       return Array.from({ length: 30 }).map((_, i) => {
         const date = startOfDay(subDays(today, 29 - i));
-        const dayMetrics = data.filter((m) => isSameDay(new Date(m.timestamp), date));
+        const dayMetrics = data.filter((m) =>
+          isSameDay(new Date(m.timestamp), date),
+        );
 
         let value = 0;
         if (dayMetrics.length > 0) {
@@ -113,13 +121,17 @@ export default function WeeklyBarChart({
 
     // Default: week (Mon-Sun)
     const dayOfWeek = today.getDay();
-    const monday = startOfDay(subDays(today, dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+    const monday = startOfDay(
+      subDays(today, dayOfWeek === 0 ? 6 : dayOfWeek - 1),
+    );
 
     return Array.from({ length: 7 }).map((_, i) => {
       const date = new Date(monday);
       date.setDate(monday.getDate() + i);
 
-      const dayMetrics = data.filter((m) => isSameDay(new Date(m.timestamp), date));
+      const dayMetrics = data.filter((m) =>
+        isSameDay(new Date(m.timestamp), date),
+      );
 
       let value = 0;
       if (dayMetrics.length > 0) {
@@ -149,14 +161,18 @@ export default function WeeklyBarChart({
   const rawTodayMax = useMemo(() => {
     if (timeframe !== "day" || !isCumulative) return 0;
     const today = new Date();
-    const todayEntries = data.filter((m) => isSameDay(new Date(m.timestamp), today));
+    const todayEntries = data.filter((m) =>
+      isSameDay(new Date(m.timestamp), today),
+    );
     if (todayEntries.length === 0) return 0;
     return Math.max(...todayEntries.map(extractValue));
   }, [data, timeframe, isCumulative]);
 
   const aggregate = shouldAverage
     ? daysWithData.length > 0
-      ? Math.round(daysWithData.reduce((s, d) => s + d.value, 0) / daysWithData.length)
+      ? Math.round(
+          daysWithData.reduce((s, d) => s + d.value, 0) / daysWithData.length,
+        )
       : 0
     : timeframe === "day"
       ? isCumulative
@@ -164,7 +180,10 @@ export default function WeeklyBarChart({
         : daysWithData.reduce((s, d) => s + d.value, 0)
       : timeframe === "month"
         ? daysWithData.length > 0
-          ? Math.round(daysWithData.reduce((s, d) => s + d.value, 0) / daysWithData.length)
+          ? Math.round(
+              daysWithData.reduce((s, d) => s + d.value, 0) /
+                daysWithData.length,
+            )
           : 0
         : daysWithData.reduce((s, d) => s + d.value, 0);
 
@@ -184,9 +203,7 @@ export default function WeeklyBarChart({
       return (
         <div className="rounded-lg border border-border bg-card p-3 shadow-lg text-sm">
           <p className="font-medium text-foreground">
-            {timeframe === "day"
-              ? d.label
-              : format(d.date, "EEEE, d MMM")}
+            {timeframe === "day" ? d.label : format(d.date, "EEEE, d MMM")}
           </p>
           <p className="text-primary font-bold text-lg">
             {d.value.toLocaleString()} {unit}
@@ -210,18 +227,22 @@ export default function WeeklyBarChart({
         <span className="text-3xl font-bold text-foreground">
           {aggregate.toLocaleString()}
         </span>
-        <span className="text-sm text-muted-foreground">
-          {aggregateLabel}
-        </span>
+        <span className="text-sm text-muted-foreground">{aggregateLabel}</span>
       </div>
 
       <ResponsiveContainer width="100%" height={chartHeight}>
-        <BarChart data={chartData} barCategoryGap={timeframe === "month" ? "10%" : "20%"}>
+        <BarChart
+          data={chartData}
+          barCategoryGap={timeframe === "month" ? "10%" : "20%"}
+        >
           <XAxis
             dataKey="label"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: timeframe === "month" ? 9 : 12, fill: "hsl(var(--muted-foreground))" }}
+            tick={{
+              fontSize: timeframe === "month" ? 9 : 12,
+              fill: "hsl(var(--muted-foreground))",
+            }}
             interval={timeframe === "month" ? 4 : timeframe === "day" ? 2 : 0}
           />
           <YAxis hide domain={[0, maxValue || "auto"]} />
@@ -237,7 +258,11 @@ export default function WeeklyBarChart({
               strokeWidth={1.5}
             />
           )}
-          <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={timeframe === "month" ? 14 : 36}>
+          <Bar
+            dataKey="value"
+            radius={[6, 6, 0, 0]}
+            maxBarSize={timeframe === "month" ? 14 : 36}
+          >
             {chartData.map((entry, i) => (
               <Cell
                 key={i}

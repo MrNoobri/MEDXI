@@ -28,7 +28,9 @@ export default function DraggableGrid({
   onLayoutChange: onLayoutChangeProp,
 }) {
   // useContainerWidth returns { width, mounted, containerRef, measureWidth }
-  const { width, mounted, containerRef } = useContainerWidth({ initialWidth: 1280 });
+  const { width, mounted, containerRef } = useContainerWidth({
+    initialWidth: 1280,
+  });
 
   // Try to load saved layout from localStorage (only when persistence is enabled)
   const [savedLayouts, setSavedLayouts] = useState(() => {
@@ -41,25 +43,32 @@ export default function DraggableGrid({
     }
   });
 
-  const handleLayoutChange = useCallback((layout, allLayouts) => {
-    // Notify parent with the single-breakpoint layout
-    if (onLayoutChangeProp) onLayoutChangeProp(layout);
+  const handleLayoutChange = useCallback(
+    (layout, allLayouts) => {
+      // Notify parent with the single-breakpoint layout
+      if (onLayoutChangeProp) onLayoutChangeProp(layout);
 
-    if (!persistLayout) return;
-    setSavedLayouts(allLayouts);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allLayouts));
-    } catch {
-      /* storage full — ignore */
-    }
-  }, [persistLayout, onLayoutChangeProp]);
+      if (!persistLayout) return;
+      setSavedLayouts(allLayouts);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allLayouts));
+      } catch {
+        /* storage full — ignore */
+      }
+    },
+    [persistLayout, onLayoutChangeProp],
+  );
 
   return (
     <div ref={containerRef} className={`dashboard-grid ${className}`}>
       {mounted && width > 0 && (
         <ResponsiveGridLayout
           width={width}
-          layouts={persistLayout && Object.keys(savedLayouts).length > 0 ? savedLayouts : undefined}
+          layouts={
+            persistLayout && Object.keys(savedLayouts).length > 0
+              ? savedLayouts
+              : undefined
+          }
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
           cols={cols}
           rowHeight={rowHeight}

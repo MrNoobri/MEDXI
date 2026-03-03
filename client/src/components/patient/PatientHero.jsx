@@ -34,10 +34,10 @@ export default function PatientHero({ userName, heroRef }) {
   }, []);
 
   // Transform mouse position into subtle 3D movement
-  const splineTranslateX = mousePos.x * 30;  // ±30px
-  const splineTranslateY = mousePos.y * 20;  // ±20px
-  const splineRotateY = mousePos.x * 8;       // ±8deg
-  const splineRotateX = -mousePos.y * 5;     // ±5deg
+  const splineTranslateX = mousePos.x * 30; // ±30px
+  const splineTranslateY = mousePos.y * 20; // ±20px
+  const splineRotateY = mousePos.x * 8; // ±8deg
+  const splineRotateX = -mousePos.y * 5; // ±5deg
 
   return (
     <motion.div
@@ -64,7 +64,10 @@ export default function PatientHero({ userName, heroRef }) {
       </div>
 
       {/* MEDXI + Welcome — fades out as flying XI takes over */}
-      <motion.div className="relative z-10 flex flex-col items-center" style={{ opacity: textOpacity }}>
+      <motion.div
+        className="relative z-10 flex flex-col items-center"
+        style={{ opacity: textOpacity }}
+      >
         <motion.h1
           className="text-[clamp(3rem,10vw,7rem)] font-black tracking-tighter leading-none select-none"
           initial={{ opacity: 0, scale: 0.9 }}

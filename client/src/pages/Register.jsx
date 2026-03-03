@@ -533,7 +533,8 @@ const Register = () => {
                                 label="Date of Birth"
                                 controlClassName="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                                 onValueChange={(details) => {
-                                  const dateStr = details.valueAsString[0] || "";
+                                  const dateStr =
+                                    details.valueAsString[0] || "";
                                   setFormData((prev) => ({
                                     ...prev,
                                     profile: {
@@ -545,7 +546,11 @@ const Register = () => {
                                 isDateUnavailable={(date) => {
                                   const today = new Date();
                                   today.setHours(0, 0, 0, 0);
-                                  const d = new Date(date.year, date.month - 1, date.day);
+                                  const d = new Date(
+                                    date.year,
+                                    date.month - 1,
+                                    date.day,
+                                  );
                                   return d > today;
                                 }}
                               />

@@ -25,9 +25,11 @@ const METRIC_INSIGHTS = [
     icon: Heart,
     unit: "bpm",
     ranges: { low: 60, high: 100 },
-    lowMsg: "Your resting heart rate is below average. If you feel faint, consult your doctor.",
+    lowMsg:
+      "Your resting heart rate is below average. If you feel faint, consult your doctor.",
     normalMsg: "Your heart rate is in a healthy range. Keep it up!",
-    highMsg: "Your heart rate is elevated. Consider stress-relief techniques or consult your provider.",
+    highMsg:
+      "Your heart rate is elevated. Consider stress-relief techniques or consult your provider.",
     tip: "Regular cardio exercise can help maintain a resting heart rate between 60–80 bpm.",
   },
   {
@@ -36,7 +38,8 @@ const METRIC_INSIGHTS = [
     icon: Footprints,
     unit: "steps",
     ranges: { low: 5000, high: 15000 },
-    lowMsg: "You're below 5k steps. Try a 15-minute walk after meals to boost activity.",
+    lowMsg:
+      "You're below 5k steps. Try a 15-minute walk after meals to boost activity.",
     normalMsg: "Great activity levels! You're on track for your step goals.",
     highMsg: "Outstanding! You're exceeding step targets—stay hydrated.",
     tip: "The CDC recommends at least 7,000–10,000 steps per day for adults.",
@@ -49,7 +52,8 @@ const METRIC_INSIGHTS = [
     ranges: { low: 6, high: 9 },
     lowMsg: "You're not getting enough sleep. Aim for 7–9 hours per night.",
     normalMsg: "Your sleep is within the recommended range—good job!",
-    highMsg: "Oversleeping can affect energy levels. Try consistent wake times.",
+    highMsg:
+      "Oversleeping can affect energy levels. Try consistent wake times.",
     tip: "Limit screen time 1 hour before bed for better sleep quality.",
   },
   {
@@ -69,7 +73,8 @@ const METRIC_INSIGHTS = [
     icon: Droplets,
     unit: "%",
     ranges: { low: 95, high: 100 },
-    lowMsg: "Your oxygen level is below 95%. Please consult your healthcare provider.",
+    lowMsg:
+      "Your oxygen level is below 95%. Please consult your healthcare provider.",
     normalMsg: "Blood oxygen looks great!",
     highMsg: "Excellent oxygen saturation levels.",
     tip: "Deep breathing exercises can support healthy oxygen levels.",
@@ -123,7 +128,13 @@ const trendIcons = {
 
 export default function PatientInsights({ latestMetrics, className }) {
   // Fetch 30 day stats for each metric that has data
-  const metricsToCheck = ["heartRate", "steps", "sleep", "calories", "oxygenSaturation"];
+  const metricsToCheck = [
+    "heartRate",
+    "steps",
+    "sleep",
+    "calories",
+    "oxygenSaturation",
+  ];
 
   const { data: statsMap } = useQuery({
     queryKey: ["patientInsightsStats"],
@@ -145,7 +156,9 @@ export default function PatientInsights({ latestMetrics, className }) {
           if (metrics.length > 0) {
             const values = metrics
               .map((m) =>
-                typeof m.value === "object" ? m.value.systolic : Number(m.value)
+                typeof m.value === "object"
+                  ? m.value.systolic
+                  : Number(m.value),
               )
               .filter((v) => !isNaN(v));
 
@@ -173,7 +186,9 @@ export default function PatientInsights({ latestMetrics, className }) {
       const stat = statsMap[config.key];
       if (!stat) return null;
       return getInsightForMetric(config, stat.avg);
-    }).filter(Boolean).slice(0, 3);
+    })
+      .filter(Boolean)
+      .slice(0, 3);
   }, [statsMap]);
 
   if (insights.length === 0) {
@@ -220,7 +235,7 @@ export default function PatientInsights({ latestMetrics, className }) {
               transition={{ delay: i * 0.08 }}
               className={cn(
                 "rounded-xl border p-4",
-                statusStyles[insight.status]
+                statusStyles[insight.status],
               )}
             >
               <div className="flex items-start gap-3">

@@ -26,12 +26,15 @@ export default function FloatingAIButton({ visible, onClick, className }) {
             "flex items-center justify-center",
             "ring-2 ring-primary/20 hover:ring-primary/40 transition-all",
             "cursor-pointer select-none",
-            className
+            className,
           )}
           aria-label="Open AI Assistant"
         >
           {/* Subtle pulse ring */}
-          <span className="absolute inset-0 rounded-2xl animate-ping bg-primary/20 pointer-events-none" style={{ animationDuration: "2.5s" }} />
+          <span
+            className="absolute inset-0 rounded-2xl animate-ping bg-primary/20 pointer-events-none"
+            style={{ animationDuration: "2.5s" }}
+          />
 
           <span className="relative text-lg font-black tracking-tighter leading-none">
             <span className="opacity-80">X</span>I
