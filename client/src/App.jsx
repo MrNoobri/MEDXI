@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Appointments from "./pages/Appointments";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
+import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
 
 // Protected Route Component
@@ -69,7 +70,7 @@ const PublicRoute = ({ children }) => {
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Routes>
         {/* Public Routes */}
         <Route
@@ -141,6 +142,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alerts"
+          element={
+            <ProtectedRoute>
+              <Alerts />
             </ProtectedRoute>
           }
         />

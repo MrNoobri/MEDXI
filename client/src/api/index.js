@@ -20,6 +20,8 @@ export const healthMetricsAPI = {
     api.get(`/health-metrics/user/${userId}`, { params }),
   getLatest: (userId) =>
     api.get(`/health-metrics/latest${userId ? `/${userId}` : ""}`),
+  getDailyTotals: (userId) =>
+    api.get(`/health-metrics/daily-totals${userId ? `/${userId}` : ""}`),
   getStats: (params) => api.get("/health-metrics/stats", { params }),
   delete: (id) => api.delete(`/health-metrics/${id}`),
 };

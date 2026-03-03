@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BackgroundPaths } from "@/components/ui/background-paths";
 import { cn } from "@/lib/utils";
 
 const ROLE_TILES = {
@@ -152,7 +153,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-rose-950/40 relative">
+      <BackgroundPaths className="opacity-20 text-rose-400" />
       <motion.div
         initial={{ opacity: 1 }}
         animate={
@@ -177,19 +179,19 @@ const Login = () => {
             duration: AUTH_TRANSITION_MS / 1000,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="hidden lg:flex flex-col justify-between p-14 bg-gradient-to-br from-violet-900 via-purple-700 to-fuchsia-600 text-white"
+          className="hidden lg:flex flex-col justify-between p-14 bg-gradient-to-br from-stone-950 via-rose-950 to-red-900 text-white"
         >
           <div>
             <p className="inline-block rounded-full border border-white/30 px-4 py-1 text-xs tracking-wide uppercase">
               Virtual Care Platform
             </p>
             <h1 className="mt-8 text-6xl font-black tracking-tight">MEDXI</h1>
-            <p className="mt-6 max-w-md text-lg text-violet-100">
+            <p className="mt-6 max-w-md text-lg text-rose-100">
               Smarter care for patients and providers. Monitor health insights,
               appointments, and communication in one place.
             </p>
           </div>
-          <p className="text-sm text-violet-100/90">
+          <p className="text-sm text-rose-200/90">
             Secure healthcare companion for modern care teams.
           </p>
         </motion.section>
@@ -207,15 +209,15 @@ const Login = () => {
           }}
           className="flex items-center justify-center px-4 py-10 sm:px-8"
         >
-          <Card className="w-full max-w-xl bg-white text-gray-900 border-gray-200 shadow-2xl">
+          <Card className="w-full max-w-xl bg-stone-900 text-stone-100 border-stone-800 shadow-2xl">
             <CardHeader className="pb-4">
-              <h2 className="text-center text-3xl font-extrabold text-gray-900 lg:hidden">
+              <h2 className="text-center text-3xl font-extrabold text-stone-100 lg:hidden">
                 MEDXI
               </h2>
-              <CardTitle className="text-center text-2xl text-gray-900">
+              <CardTitle className="text-center text-2xl text-stone-100">
                 Sign in to your account
               </CardTitle>
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-sm text-stone-400">
                 Select your role to use the right login
               </p>
             </CardHeader>
@@ -229,14 +231,14 @@ const Login = () => {
                     className={cn(
                       "rounded-xl border p-4 text-left transition-all",
                       selectedRole === role
-                        ? "border-violet-700 bg-violet-100 shadow-sm"
-                        : "border-violet-200 hover:border-violet-500 hover:bg-violet-50/70",
+                        ? "border-rose-700 bg-rose-950/60 shadow-sm"
+                        : "border-stone-700 hover:border-rose-600 hover:bg-stone-800/70",
                     )}
                   >
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-stone-100">
                       {config.title}
                     </p>
-                    <p className="mt-1 text-xs text-gray-600">
+                    <p className="mt-1 text-xs text-stone-400">
                       {config.subtitle}
                     </p>
                   </button>
@@ -248,7 +250,7 @@ const Login = () => {
                   type="button"
                   variant="outline"
                   onClick={handleGoogleSignIn}
-                  className="w-full bg-white border-gray-300 text-gray-900 hover:bg-gray-50"
+                  className="w-full bg-stone-800 border-stone-700 text-stone-100 hover:bg-stone-700"
                 >
                   <svg
                     className="mr-2 h-4 w-4"
@@ -266,10 +268,10 @@ const Login = () => {
 
               <div className="relative mb-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-violet-200" />
+                  <span className="w-full border-t border-stone-700" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-violet-500">
+                  <span className="bg-stone-900 px-2 text-stone-400">
                     Or continue with email
                   </span>
                 </div>
@@ -292,7 +294,7 @@ const Login = () => {
                       autoComplete="email"
                       required
                       placeholder="Enter your email"
-                      className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                      className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                       value={formData.email}
                       onChange={handleChange}
                     />
@@ -307,7 +309,7 @@ const Login = () => {
                       autoComplete="current-password"
                       required
                       placeholder="Enter your password"
-                      className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                      className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                       value={formData.password}
                       onChange={handleChange}
                     />
@@ -318,20 +320,20 @@ const Login = () => {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full text-base bg-gradient-to-r from-violet-700 via-purple-700 to-fuchsia-600 hover:from-violet-800 hover:via-purple-800 hover:to-fuchsia-700"
+                    className="w-full text-base bg-gradient-to-r from-rose-900 via-red-800 to-rose-700 hover:from-rose-800 hover:via-red-700 hover:to-rose-600 text-white"
                   >
                     {loading ? "Signing in..." : "Sign in"}
                   </Button>
                 </div>
 
                 <div className="text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-stone-400">
                     Don't have an account?{" "}
                     <button
                       type="button"
                       onClick={handleGoToSignup}
                       disabled={isTransitioningToSignup}
-                      className="font-medium text-violet-700 hover:text-violet-800"
+                      className="font-medium text-rose-400 hover:text-rose-300"
                     >
                       Sign up
                     </button>

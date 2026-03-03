@@ -9,10 +9,46 @@ import React, {
 import { authAPI } from "../api";
 import { useAuth } from "./AuthContext";
 
-const THEMES = ["medical", "midnight", "emerald"];
+const THEMES = ["crimson", "medical", "midnight", "emerald"];
 const MODES = ["light", "dark"];
 
 const THEME_TOKENS = {
+  crimson: {
+    light: {
+      bg: "#fef2f2",
+      surface: "#ffffff",
+      surface2: "#fce7e7",
+      border: "#fecaca",
+      text: "#1c1917",
+      textMuted: "#78716c",
+      primary: "#be123c",
+      secondary: "#e11d48",
+      accent: "#f59e0b",
+      ringTrack: "rgba(190, 18, 60, 0.16)",
+      focus: "rgba(190, 18, 60, 0.35)",
+      glass: "rgba(255, 255, 255, 0.62)",
+      bgEffect1: "rgba(190, 18, 60, 0.10)",
+      bgEffect2: "rgba(225, 29, 72, 0.08)",
+      bgEffect3: "rgba(245, 158, 11, 0.07)",
+    },
+    dark: {
+      bg: "#0c0a09",
+      surface: "#1c1917",
+      surface2: "#0a0806",
+      border: "rgba(168, 162, 158, 0.18)",
+      text: "#fafaf9",
+      textMuted: "#a8a29e",
+      primary: "#e11d48",
+      secondary: "#f43f5e",
+      accent: "#fbbf24",
+      ringTrack: "rgba(225, 29, 72, 0.20)",
+      focus: "rgba(225, 29, 72, 0.45)",
+      glass: "rgba(28, 25, 23, 0.60)",
+      bgEffect1: "rgba(225, 29, 72, 0.18)",
+      bgEffect2: "rgba(244, 63, 94, 0.12)",
+      bgEffect3: "rgba(251, 191, 36, 0.10)",
+    },
+  },
   medical: {
     light: {
       bg: "#f8fafc",
@@ -173,15 +209,15 @@ export const ThemeProvider = ({ children }) => {
   const { user, updateUser } = useAuth();
 
   const [theme, setThemeState] = useState(
-    localStorage.getItem("theme") || "midnight",
+    localStorage.getItem("theme") || "crimson",
   );
   const [mode, setModeState] = useState(
-    localStorage.getItem("themeMode") || "light",
+    localStorage.getItem("themeMode") || "dark",
   );
 
   const applyThemeToDocument = useCallback((nextTheme, nextMode) => {
-    const safeTheme = THEMES.includes(nextTheme) ? nextTheme : "midnight";
-    const safeMode = MODES.includes(nextMode) ? nextMode : "light";
+    const safeTheme = THEMES.includes(nextTheme) ? nextTheme : "crimson";
+    const safeMode = MODES.includes(nextMode) ? nextMode : "dark";
     const palette = THEME_TOKENS[safeTheme][safeMode];
 
     const root = document.documentElement;
@@ -254,6 +290,10 @@ export const ThemeProvider = ({ children }) => {
   }, [theme, mode, applyThemeToDocument]);
 
   useEffect(() => {
+    // Only apply server preferences on first login (no local choice made yet).
+    // Once the user has explicitly changed their theme locally, localStorage wins.
+    if (localStorage.getItem("themeSetByUser")) return;
+
     const userTheme = user?.uiPreferences?.theme;
     const userMode = user?.uiPreferences?.mode;
 
@@ -270,6 +310,7 @@ export const ThemeProvider = ({ children }) => {
   const setTheme = async (nextTheme, persist = true) => {
     const safeTheme = THEMES.includes(nextTheme) ? nextTheme : "midnight";
     setThemeState(safeTheme);
+    localStorage.setItem("themeSetByUser", "1");
 
     if (persist && user) {
       try {
@@ -287,6 +328,7 @@ export const ThemeProvider = ({ children }) => {
   const setMode = async (nextMode, persist = true) => {
     const safeMode = MODES.includes(nextMode) ? nextMode : "light";
     setModeState(safeMode);
+    localStorage.setItem("themeSetByUser", "1");
 
     if (persist && user) {
       try {
@@ -307,6 +349,7 @@ export const ThemeProvider = ({ children }) => {
 
     setThemeState(safeTheme);
     setModeState(safeMode);
+    localStorage.setItem("themeSetByUser", "1");
 
     if (persist && user) {
       try {

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { BackgroundPaths } from "@/components/ui/background-paths";
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../api";
 import Toast from "../components/common/Toast";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePickerInput } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
 const AUTH_TRANSITION_MS = 620;
@@ -277,7 +279,8 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-rose-950/40 relative">
+      <BackgroundPaths className="opacity-20 text-rose-400" />
       <motion.div
         initial={{ opacity: 1 }}
         animate={
@@ -302,7 +305,7 @@ const Register = () => {
             duration: AUTH_TRANSITION_MS / 1000,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="flex items-center justify-center px-4 py-10 sm:px-8"
+          className="flex items-center justify-center px-4 py-10 sm:px-8 lg:order-1"
         >
           <motion.div
             initial={{ opacity: 0, x: -16 }}
@@ -310,14 +313,14 @@ const Register = () => {
             transition={{ duration: 0.28, ease: "easeOut" }}
             className="w-full max-w-xl"
           >
-            <Card className="bg-white text-gray-900 border-gray-200 shadow-2xl">
+            <Card className="bg-stone-900 text-stone-100 border-stone-800 shadow-2xl">
               <CardHeader className="pb-4">
-                <CardTitle className="text-2xl text-gray-900">
+                <CardTitle className="text-2xl text-stone-100">
                   {needsGooglePasswordSetup
                     ? "Set your password"
                     : "Create your account"}
                 </CardTitle>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-stone-400">
                   {needsGooglePasswordSetup
                     ? "Finish setup so you can sign in with Google or email/password anytime"
                     : "Choose your role to load the matching signup fields"}
@@ -335,7 +338,7 @@ const Register = () => {
                       </div>
                     )}
 
-                    <div className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-800">
+                    <div className="rounded-lg border border-rose-800 bg-rose-950/50 px-4 py-3 text-sm text-rose-200">
                       You are signed in with Google. Create a password to also
                       sign in with email and password.
                     </div>
@@ -348,7 +351,7 @@ const Register = () => {
                         type="password"
                         autoComplete="new-password"
                         required
-                        className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                        className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                         value={passwordSetupData.password}
                         onChange={handlePasswordSetupChange}
                       />
@@ -364,7 +367,7 @@ const Register = () => {
                         type="password"
                         autoComplete="new-password"
                         required
-                        className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                        className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                         value={passwordSetupData.confirmPassword}
                         onChange={handlePasswordSetupChange}
                       />
@@ -373,7 +376,7 @@ const Register = () => {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-gradient-to-r from-violet-700 via-purple-700 to-fuchsia-600 hover:from-violet-800 hover:via-purple-800 hover:to-fuchsia-700"
+                      className="w-full bg-gradient-to-r from-rose-900 via-red-800 to-rose-700 hover:from-rose-800 hover:via-red-700 hover:to-rose-600 text-white"
                     >
                       {loading
                         ? "Saving password..."
@@ -382,7 +385,7 @@ const Register = () => {
                   </form>
                 ) : (
                   <>
-                    <div className="relative mb-6 grid grid-cols-2 gap-2 rounded-xl bg-violet-100 p-1">
+                    <div className="relative mb-6 grid grid-cols-2 gap-2 rounded-xl bg-stone-800 p-1">
                       <motion.div
                         layout
                         transition={{
@@ -391,7 +394,7 @@ const Register = () => {
                           damping: 28,
                         }}
                         className={cn(
-                          "absolute top-1 bottom-1 w-[calc(50%-0.25rem)] rounded-lg bg-gradient-to-r from-violet-700 via-purple-700 to-fuchsia-600",
+                          "absolute top-1 bottom-1 w-[calc(50%-0.25rem)] rounded-lg bg-gradient-to-r from-rose-900 via-red-800 to-rose-700",
                           formData.role === "patient"
                             ? "left-1"
                             : "left-[calc(50%)]",
@@ -403,7 +406,7 @@ const Register = () => {
                           "relative z-10 rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
                           formData.role === "patient"
                             ? "text-white"
-                            : "text-violet-700",
+                            : "text-stone-400",
                         )}
                         onClick={() => handleRoleChange("patient")}
                       >
@@ -415,7 +418,7 @@ const Register = () => {
                           "relative z-10 rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
                           formData.role === "provider"
                             ? "text-white"
-                            : "text-violet-700",
+                            : "text-stone-400",
                         )}
                         onClick={() => handleRoleChange("provider")}
                       >
@@ -429,7 +432,7 @@ const Register = () => {
                           type="button"
                           variant="outline"
                           onClick={handleGoogleSignUp}
-                          className="w-full bg-white border-gray-300 text-gray-900 hover:bg-gray-50"
+                          className="w-full bg-stone-800 border-stone-700 text-stone-100 hover:bg-stone-700"
                         >
                           <svg
                             className="mr-2 h-4 w-4"
@@ -446,10 +449,10 @@ const Register = () => {
 
                         <div className="relative mt-4">
                           <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-violet-200" />
+                            <span className="w-full border-t border-stone-700" />
                           </div>
                           <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-2 text-violet-500">
+                            <span className="bg-stone-900 px-2 text-stone-400">
                               Or use email
                             </span>
                           </div>
@@ -471,7 +474,7 @@ const Register = () => {
                             id="firstName"
                             name="profile.firstName"
                             required
-                            className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                             value={formData.profile.firstName}
                             onChange={handleChange}
                           />
@@ -482,7 +485,7 @@ const Register = () => {
                             id="lastName"
                             name="profile.lastName"
                             required
-                            className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                            className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                             value={formData.profile.lastName}
                             onChange={handleChange}
                           />
@@ -497,7 +500,7 @@ const Register = () => {
                           type="email"
                           autoComplete="email"
                           required
-                          className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                           value={formData.email}
                           onChange={handleChange}
                         />
@@ -509,7 +512,7 @@ const Register = () => {
                           id="phone"
                           name="profile.phone"
                           type="tel"
-                          className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                           value={formData.profile.phone}
                           onChange={handleChange}
                         />
@@ -526,16 +529,25 @@ const Register = () => {
                             className="grid grid-cols-2 gap-4"
                           >
                             <div className="space-y-2">
-                              <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                              <Input
-                                id="dateOfBirth"
-                                name="profile.dateOfBirth"
-                                type="date"
-                                required
-                                className="bg-white border-gray-300 text-gray-900"
-                                value={formData.profile.dateOfBirth}
-                                onChange={handleChange}
-                                max={new Date().toISOString().split("T")[0]}
+                              <DatePickerInput
+                                label="Date of Birth"
+                                controlClassName="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
+                                onValueChange={(details) => {
+                                  const dateStr = details.valueAsString[0] || "";
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    profile: {
+                                      ...prev.profile,
+                                      dateOfBirth: dateStr,
+                                    },
+                                  }));
+                                }}
+                                isDateUnavailable={(date) => {
+                                  const today = new Date();
+                                  today.setHours(0, 0, 0, 0);
+                                  const d = new Date(date.year, date.month - 1, date.day);
+                                  return d > today;
+                                }}
                               />
                             </div>
                             <div className="space-y-2">
@@ -543,7 +555,7 @@ const Register = () => {
                               <select
                                 id="gender"
                                 name="profile.gender"
-                                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                                className="flex h-10 w-full rounded-md border border-stone-700 bg-stone-800 px-3 py-2 text-sm text-stone-100"
                                 value={formData.profile.gender}
                                 onChange={handleChange}
                               >
@@ -574,7 +586,7 @@ const Register = () => {
                               name="providerInfo.specialization"
                               placeholder="e.g. Cardiology"
                               required
-                              className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                              className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                               value={formData.providerInfo.specialization}
                               onChange={handleChange}
                             />
@@ -590,7 +602,7 @@ const Register = () => {
                           type="password"
                           autoComplete="new-password"
                           required
-                          className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                           value={formData.password}
                           onChange={handleChange}
                         />
@@ -606,7 +618,7 @@ const Register = () => {
                           type="password"
                           autoComplete="new-password"
                           required
-                          className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
+                          className="bg-stone-800 border-stone-700 text-stone-100 placeholder:text-stone-500"
                           value={formData.confirmPassword}
                           onChange={handleChange}
                         />
@@ -615,18 +627,18 @@ const Register = () => {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-violet-700 via-purple-700 to-fuchsia-600 hover:from-violet-800 hover:via-purple-800 hover:to-fuchsia-700"
+                        className="w-full bg-gradient-to-r from-rose-900 via-red-800 to-rose-700 hover:from-rose-800 hover:via-red-700 hover:to-rose-600 text-white"
                       >
                         {loading ? "Creating account..." : "Sign up"}
                       </Button>
 
-                      <p className="text-center text-sm text-gray-600">
+                      <p className="text-center text-sm text-stone-400">
                         Already have an account?{" "}
                         <button
                           type="button"
                           onClick={handleGoToSignin}
                           disabled={isTransitioningToSignin}
-                          className="font-medium text-violet-700 hover:text-violet-800"
+                          className="font-medium text-rose-400 hover:text-rose-300"
                         >
                           Sign in
                         </button>
@@ -650,14 +662,14 @@ const Register = () => {
             duration: AUTH_TRANSITION_MS / 1000,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="hidden lg:flex flex-col justify-between p-14 bg-gradient-to-br from-violet-900 via-purple-700 to-fuchsia-600 text-white"
+          className="hidden lg:flex flex-col justify-between p-14 bg-gradient-to-br from-stone-950 via-rose-950 to-red-900 text-white lg:order-2 items-start"
         >
           <div>
             <p className="inline-block rounded-full border border-white/30 px-4 py-1 text-xs tracking-wide uppercase">
               Create your MEDXI profile
             </p>
             <h1 className="mt-8 text-6xl font-black tracking-tight">MEDXI</h1>
-            <p className="mt-6 max-w-md text-lg text-violet-100">
+            <p className="mt-6 max-w-md text-lg text-rose-100">
               Choose Patient or Doctor, complete your details, and start using
               your personalized virtual health companion.
             </p>

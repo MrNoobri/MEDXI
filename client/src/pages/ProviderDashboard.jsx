@@ -20,6 +20,7 @@ import PatientsTab from "../components/provider/PatientsTab";
 import MessagesTab from "../components/provider/MessagesTab";
 import AlertsTab from "../components/provider/AlertsTab";
 import { appointmentsAPI, alertsAPI, messagesAPI } from "../api";
+import DashboardDock from "../components/patient/DashboardDock";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -149,6 +150,23 @@ const ProviderDashboard = () => {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
+  };
+
+  // ── Cycle theme for dock ──
+  const cycleTheme = () => {
+    const themes = ["medical", "midnight", "emerald"];
+    const idx = themes.indexOf(theme);
+    setTheme(themes[(idx + 1) % themes.length]);
+  };
+
+  // ── Dock tab mapping ──
+  const handleDockTab = (tab) => {
+    // Map dock tabs to provider tabs
+    const map = { overview: "overview", patients: "patients", appointments: "calendar", messages: "messages", ai: "overview" };
+    setActiveTab(map[tab] || "overview");
+    setTimeout(() => {
+      document.getElementById("dashboard-tabs")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   return (
@@ -409,6 +427,15 @@ const ProviderDashboard = () => {
           </div>
         </main>
       </motion.div>
+
+      {/* ── Bottom Dock Navigation (mobile + supplement) ── */}
+      <DashboardDock
+        activeTab={activeTab === "calendar" ? "appointments" : activeTab}
+        onTabChange={handleDockTab}
+        role="provider"
+        onThemeToggle={cycleTheme}
+        className="lg:hidden"
+      />
     </div>
   );
 };

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { appointmentsAPI } from "../../api";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -11,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePickerInput } from "@/components/ui/date-picker";
 
 const BookAppointmentModal = ({ isOpen, onClose, providers }) => {
   const queryClient = useQueryClient();
@@ -106,15 +106,18 @@ const BookAppointmentModal = ({ isOpen, onClose, providers }) => {
           </div>
 
           <div>
-            <Label className="mb-2">Date *</Label>
-            <Input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              min={new Date().toISOString().split("T")[0]}
-              className="h-11"
-              required
+            <DatePickerInput
+              label="Date *"
+              onValueChange={(details) => {
+                const dateStr = details.valueAsString[0] || "";
+                setFormData((prev) => ({ ...prev, date: dateStr }));
+              }}
+              isDateUnavailable={(date) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const d = new Date(date.year, date.month - 1, date.day);
+                return d < today;
+              }}
             />
           </div>
 

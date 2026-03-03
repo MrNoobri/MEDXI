@@ -8,6 +8,7 @@ export default function MetricRing({
   className,
   trackColor = "hsl(var(--muted))",
   ringColor = "hsl(var(--primary))",
+  children,
 }) {
   const normalized = Math.min(1, Math.max(0, progress));
   const radius = (size - strokeWidth) / 2;
@@ -15,7 +16,7 @@ export default function MetricRing({
   const dashOffset = circumference * (1 - normalized);
 
   return (
-    <div className={cn("inline-flex", className)}>
+    <div className={cn("inline-flex relative", className)} style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
           cx={size / 2}
@@ -40,6 +41,11 @@ export default function MetricRing({
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </svg>
+      {children && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          {children}
+        </div>
+      )}
     </div>
   );
 }

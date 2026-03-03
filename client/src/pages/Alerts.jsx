@@ -1,14 +1,19 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, CheckCircle, Clock, Activity } from "lucide-react";
-import Navbar from "../components/common/Navbar";
+import { AlertTriangle, CheckCircle, Clock, Activity, ArrowLeft } from "lucide-react";
 import { alertsAPI } from "../api";
-import { Button } from "../ui/shared/Button";
-import { Card, CardContent } from "../ui/shared/Card";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import DashboardSidebar from "../components/patient/DashboardSidebar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const Alerts = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState("all"); // all, active, resolved
 
@@ -28,39 +33,38 @@ const Alerts = () => {
 
   // Mark alert as resolved
   const resolveAlertMutation = useMutation({
-    mutationFn: (alertId) => alertsAPI.markResolved(alertId),
+    mutationFn: (alertId) => alertsAPI.acknowledge(alertId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
+      toast.success("Alert resolved successfully");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to resolve alert");
     },
   });
 
   const getAlertIcon = (severity) => {
-    const iconProps = { className: "w-6 h-6" };
     if (severity === "critical")
-      return (
-        <AlertTriangle {...iconProps} className="w-6 h-6 text-danger-600" />
-      );
+      return <AlertTriangle className="w-6 h-6 text-destructive" />;
     if (severity === "warning")
-      return (
-        <AlertTriangle {...iconProps} className="w-6 h-6 text-warning-600" />
-      );
-    return <Activity {...iconProps} className="w-6 h-6 text-primary-600" />;
+      return <AlertTriangle className="w-6 h-6 text-warning" />;
+    return <Activity className="w-6 h-6 text-primary" />;
   };
 
   const getAlertStyle = (severity) => {
     if (severity === "critical")
-      return "border-l-4 border-danger-500 bg-danger-50";
+      return "border-l-4 border-destructive bg-destructive/5";
     if (severity === "warning")
-      return "border-l-4 border-warning-500 bg-warning-50";
-    return "border-l-4 border-primary-500 bg-primary-50";
+      return "border-l-4 border-warning bg-warning/5";
+    return "border-l-4 border-primary bg-primary/5";
   };
 
   const getSeverityBadge = (severity) => {
     if (severity === "critical")
-      return "bg-danger-100 text-danger-800 border border-danger-200";
+      return "bg-destructive/10 text-destructive border border-destructive/20";
     if (severity === "warning")
-      return "bg-warning-100 text-warning-800 border border-warning-200";
-    return "bg-primary-100 text-primary-800 border border-primary-200";
+      return "bg-warning/10 text-warning border border-warning/20";
+    return "bg-primary/10 text-primary border border-primary/20";
   };
 
   const formatDate = (date) => {
@@ -83,30 +87,48 @@ const Alerts = () => {
     return d.toLocaleDateString();
   };
 
-  return (
-    <div className="min-h-screen bg-slate-100">
-      <Navbar />
+  const handleSidebarNav = (tabId) => {
+    const routes = {
+      overview: "/dashboard",
+      activity: "/dashboard",
+      appointments: "/appointments",
+      messages: "/messages",
+      wearables: "/wearables",
+    };
+    if (routes[tabId]) navigate(routes[tabId]);
+  };
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <div className="min-h-screen bg-background">
+      <DashboardSidebar
+        activeTab="alerts"
+        onTabChange={handleSidebarNav}
+        role={user?.role || "patient"}
+        visible={true}
+      />
+
+      <div className="ml-[72px] flex justify-center">
+      <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">
+              <h1 className="text-3xl font-bold text-foreground">
                 Health Alerts
               </h1>
-              <p className="text-slate-600 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Monitor and manage your health notifications
               </p>
             </div>
-            <Button variant="outline" onClick={() => navigate("/dashboard")}>
-              Back to Dashboard
+            <Button variant="outline" onClick={() => navigate(-1)} className="gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back
             </Button>
           </div>
         </div>
 
         {/* Filter Tabs */}
-        <div className="mb-6 flex space-x-2 border-b border-slate-200">
+        <div className="mb-6 flex space-x-2 border-b border-border">
           {[
             { key: "all", label: "All Alerts" },
             { key: "active", label: "Active" },
@@ -115,11 +137,12 @@ const Alerts = () => {
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`px-4 py-2 font-medium text-sm transition-colors ${
+              className={cn(
+                "px-4 py-2 font-medium text-sm transition-colors",
                 filter === tab.key
-                  ? "text-violet-700 border-b-2 border-violet-700"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
             >
               {tab.label}
             </button>
@@ -129,16 +152,16 @@ const Alerts = () => {
         {/* Alerts List */}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : alerts.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <CheckCircle className="w-16 h-16 text-success-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+              <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">
                 No Alerts
               </h3>
-              <p className="text-slate-600">
+              <p className="text-muted-foreground">
                 {filter === "all"
                   ? "You don't have any health alerts at the moment."
                   : filter === "active"
@@ -166,17 +189,17 @@ const Alerts = () => {
                             {alert.severity.toUpperCase()}
                           </span>
                           {alert.isAcknowledged && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Resolved
                             </span>
                           )}
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                        <h3 className="text-lg font-semibold text-foreground mb-1">
                           {alert.title || "Health Alert"}
                         </h3>
-                        <p className="text-slate-700 mb-3">{alert.message}</p>
-                        <div className="flex items-center space-x-4 text-sm text-slate-500">
+                        <p className="text-foreground/80 mb-3">{alert.message}</p>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                           <div className="flex items-center">
                             <Clock className="w-4 h-4 mr-1" />
                             {formatDate(alert.createdAt)}
@@ -201,7 +224,7 @@ const Alerts = () => {
                         className="ml-4"
                       >
                         {resolveAlertMutation.isPending ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
                         ) : (
                           <>
                             <CheckCircle className="w-4 h-4 mr-1" />
@@ -216,6 +239,7 @@ const Alerts = () => {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

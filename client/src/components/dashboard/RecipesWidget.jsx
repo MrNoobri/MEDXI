@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const RecipesWidget = () => {
+const RecipesWidget = ({ className }) => {
   const [selectedCategory, setSelectedCategory] = useState("heart-healthy");
 
   const recipeCategories = {
@@ -82,14 +82,14 @@ const RecipesWidget = () => {
   ];
 
   return (
-    <div className="card">
-      <h3 className="text-xl font-semibold mb-4 flex items-center">
+    <div className={`card flex flex-col ${className || ""}`}>
+      <h3 className="text-xl font-semibold mb-4 flex items-center shrink-0">
         <span className="mr-2">🍽️</span>
         Healthy Recipes
       </h3>
 
       {/* Category Tabs */}
-      <div className="flex space-x-2 mb-4 overflow-x-auto pb-2">
+      <div className="flex space-x-2 mb-4 overflow-x-auto pb-2 shrink-0">
         {categories.map((cat) => (
           <button
             key={cat.id}
@@ -106,7 +106,7 @@ const RecipesWidget = () => {
       </div>
 
       {/* Recipes Grid */}
-      <div className="space-y-3">
+      <div className="space-y-3 overflow-y-auto flex-1 min-h-0">
         {recipeCategories[selectedCategory].map((recipe, index) => (
           <div
             key={index}

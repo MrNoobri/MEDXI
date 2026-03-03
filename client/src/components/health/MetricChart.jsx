@@ -29,18 +29,19 @@ const MetricChart = ({ data, metricType, color = "#00a2a2" }) => {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" />
-        <YAxis />
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+        <YAxis tick={{ fill: "hsl(var(--muted-foreground))" }} />
         <Tooltip
+          cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1 }}
           content={({ active, payload }) => {
             if (active && payload && payload.length) {
               return (
-                <div className="bg-white p-3 rounded-lg shadow-lg border">
-                  <p className="text-sm text-gray-600">
+                <div className="bg-card p-3 rounded-lg shadow-lg border border-border">
+                  <p className="text-sm text-muted-foreground">
                     {payload[0].payload.fullDate}
                   </p>
-                  <p className="text-lg font-bold text-primary-600">
+                  <p className="text-lg font-bold text-primary">
                     {payload[0].value} {data[0]?.unit}
                   </p>
                 </div>

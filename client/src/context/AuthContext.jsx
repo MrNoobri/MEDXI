@@ -84,6 +84,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
+      sessionStorage.removeItem("medxi_splash_shown");
       setUser(null);
     }
   };

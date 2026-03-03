@@ -1,10 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { googleFitAPI } from "../api";
+import { useToast } from "../context/ToastContext";
+
+const AUTO_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 const GoogleFitConnect = () => {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState(null);
+  const toast = useToast();
+  const syncIntervalRef = useRef(null);
 
   useEffect(() => {
     checkConnectionStatus();
@@ -13,11 +19,47 @@ const GoogleFitConnect = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("googlefit") === "connected") {
       setConnected(true);
+      toast.success("Google Fit connected successfully!");
+      // Trigger initial sync silently
+      silentSync();
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (params.get("error")) {
-      alert("Failed to connect Google Fit. Please try again.");
+      toast.error("Failed to connect Google Fit. Please try again.");
       window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    return () => {
+      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
+    };
+  }, []);
+
+  // Auto-sync when connected
+  useEffect(() => {
+    if (connected) {
+      // Initial silent sync on mount
+      silentSync();
+      // Set up periodic auto-sync
+      syncIntervalRef.current = setInterval(silentSync, AUTO_SYNC_INTERVAL);
+    } else {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+        syncIntervalRef.current = null;
+      }
+    }
+    return () => {
+      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
+    };
+  }, [connected]);
+
+  const silentSync = useCallback(async () => {
+    try {
+      const response = await googleFitAPI.sync();
+      if (response.data?.success) {
+        setLastSynced(new Date());
+      }
+    } catch (error) {
+      console.error("Auto-sync error:", error);
     }
   }, []);
 
@@ -40,14 +82,13 @@ const GoogleFitConnect = () => {
       const data = response.data;
 
       if (data.success && data.data.authUrl) {
-        // Redirect to Google OAuth
         window.location.href = data.data.authUrl;
       } else {
         throw new Error("Failed to get authorization URL");
       }
     } catch (error) {
       console.error("Error connecting to Google Fit:", error);
-      alert(
+      toast.error(
         error.response?.status === 401
           ? "Session expired. Please log in again."
           : "Failed to connect to Google Fit. Please try again.",
@@ -57,10 +98,6 @@ const GoogleFitConnect = () => {
   };
 
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure you want to disconnect Google Fit?")) {
-      return;
-    }
-
     try {
       setLoading(true);
       const response = await googleFitAPI.disconnect();
@@ -68,13 +105,13 @@ const GoogleFitConnect = () => {
 
       if (data.success) {
         setConnected(false);
-        alert("Google Fit disconnected successfully");
+        toast.success("Google Fit disconnected");
       } else {
         throw new Error(data.message);
       }
     } catch (error) {
       console.error("Error disconnecting Google Fit:", error);
-      alert("Failed to disconnect Google Fit");
+      toast.error("Failed to disconnect Google Fit");
     } finally {
       setLoading(false);
     }
@@ -87,16 +124,25 @@ const GoogleFitConnect = () => {
       const data = response.data;
 
       if (data.success) {
-        alert("Google Fit data synced successfully! Refresh to see new data.");
+        setLastSynced(new Date());
+        toast.success("Google Fit data synced successfully!");
       } else {
         throw new Error(data.message);
       }
     } catch (error) {
       console.error("Error syncing Google Fit data:", error);
-      alert("Failed to sync Google Fit data");
+      toast.error("Failed to sync Google Fit data");
     } finally {
       setSyncing(false);
     }
+  };
+
+  const formatLastSynced = () => {
+    if (!lastSynced) return null;
+    const mins = Math.floor((Date.now() - lastSynced.getTime()) / 60000);
+    if (mins < 1) return "Just now";
+    if (mins < 60) return `${mins}m ago`;
+    return `${Math.floor(mins / 60)}h ago`;
   };
 
   return (
@@ -114,7 +160,7 @@ const GoogleFitConnect = () => {
             </h3>
             <p className="text-sm text-muted-foreground">
               {connected
-                ? "Connected - Syncing your health data automatically"
+                ? `Connected — syncing automatically${lastSynced ? ` · Last sync: ${formatLastSynced()}` : ""}`
                 : "Connect your Google Fit to sync health data from your devices"}
             </p>
           </div>
